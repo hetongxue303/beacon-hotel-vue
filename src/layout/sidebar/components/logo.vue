@@ -1,13 +1,13 @@
 <template>
   <div class="logo_content">
-    <img src="https://eladmin.vip/demo/static/img/logo.381d6a3e.png" alt=""/>
+    <img src="https://eladmin.vip/demo/static/img/logo.381d6a3e.png" alt="" />
     <span v-show="!collapse">烽火酒店后台管理</span>
   </div>
 </template>
 
 <script setup lang="ts">
 defineProps({
-  collapse: {type: Boolean, required: true, default: false}
+  collapse: { type: Boolean, required: true, default: false }
 })
 </script>
 

@@ -1,7 +1,7 @@
-import {createApp} from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 
-import router from "./router"
+import router from './router'
 import pinia from './store'
 import ElementPlus from './plugins/element-plus'
 import directive from './directive/Index'

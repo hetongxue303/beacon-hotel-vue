@@ -1,11 +1,5 @@
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
+<template>登陆页面</template>
 
-<template>
-  登陆页面
-</template>
-
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

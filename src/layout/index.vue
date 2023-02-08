@@ -2,7 +2,7 @@
 import Sidebar from '@layout/sidebar/index.vue'
 import Header from '@layout/header/index.vue'
 import Footer from '@layout/footer/index.vue'
-import {useAppStore} from '../store/modules/app'
+import { useAppStore } from '../store/modules/app'
 
 const appStore = useAppStore()
 </script>
@@ -10,17 +10,17 @@ const appStore = useAppStore()
 <template>
   <el-container>
     <el-aside>
-      <Sidebar v-model:is-collapse="appStore.getCollapse"/>
+      <Sidebar v-model:is-collapse="appStore.getCollapse" />
     </el-aside>
     <el-container>
       <el-header>
-        <Header/>
+        <Header />
       </el-header>
       <el-main>
-        <router-view/>
+        <router-view />
       </el-main>
       <el-footer>
-        <Footer/>
+        <Footer />
       </el-footer>
     </el-container>
   </el-container>

@@ -1,10 +1,10 @@
-import {defineStore} from "pinia";
+import { defineStore } from 'pinia'
 
 export const useSettingStore = defineStore('settings', {
-    state: (): SettingsType => {
-        return {}
-    },
-    getters: {},
-    actions: {},
-    persist: {key: 'settings'}
+  state: (): SettingsType => {
+    return {}
+  },
+  getters: {},
+  actions: {},
+  persist: { key: 'settings' }
 })

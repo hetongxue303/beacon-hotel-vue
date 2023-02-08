@@ -1,7 +1,7 @@
 <template>
   <div class="full-screen" @click="toggleFullScreen">
     <el-icon :size="20">
-      <component is="FullScreen"/>
+      <component is="FullScreen" />
     </el-icon>
   </div>
 </template>

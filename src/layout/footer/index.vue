@@ -1,7 +1,7 @@
 <template>
   <div class="footer-text">
     <span
-    >© 2023 烽火酒店&nbsp;
+      >© 2023 烽火酒店&nbsp;
       <el-link :underline="false" href="#">Apache License 2.0</el-link>
       &nbsp;⋅&nbsp;
       <el-link :underline="false" href="#">渝ICP备18xxx431号-9</el-link>

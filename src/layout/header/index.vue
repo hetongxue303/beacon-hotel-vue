@@ -1,11 +1,11 @@
 <template>
   <div class="header-parent">
     <div class="left">
-      <Collapse/>
+      <Collapse />
     </div>
     <div class="right">
-      <full-screen class="components-space"/>
-      <Center/>
+      <full-screen class="components-space" />
+      <Center />
     </div>
   </div>
 </template>

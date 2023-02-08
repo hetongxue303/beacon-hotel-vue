@@ -1,5 +1,5 @@
 <template>
-  <Logo :collapse="isCollapse"/>
+  <Logo :collapse="isCollapse" />
   <el-scrollbar class="scrollbar" wrap-class="scrollbar-wrapper">
     <el-menu
       :collapse="isCollapse"
@@ -12,18 +12,18 @@
       active-text-color="#409eff"
       background-color="#304156"
     >
-      <menu-item :data="menus"/>
+      <menu-item :data="menus" />
     </el-menu>
   </el-scrollbar>
 </template>
 
 <script setup lang="ts">
-import {computed} from 'vue'
-import {useRoute} from 'vue-router'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import MenuItem from './components/MenuItem.vue'
 import Logo from './components/logo.vue'
-import {usePermissionStore} from '../../store/modules/permission'
-import {menus} from "../data/menus";
+import { usePermissionStore } from '../../store/modules/permission'
+import { menus } from '../data/menus'
 
 const route = useRoute()
 // const permissionStore = usePermissionStore()
@@ -31,7 +31,7 @@ const route = useRoute()
 //   return permissionStore.getMenu
 // })
 
-withDefaults(defineProps<{ isCollapse: boolean }>(), {isCollapse: false})
+withDefaults(defineProps<{ isCollapse: boolean }>(), { isCollapse: false })
 
 const activeValue = computed((): string => {
   return route.path
@@ -64,6 +64,6 @@ const activeValue = computed((): string => {
 
 .horizontal-collapse-transition {
   transition: 0.25s width ease-in-out, 0.25s padding-left ease-in-out,
-  0.25s padding-right ease-in-out;
+    0.25s padding-right ease-in-out;
 }
 </style>

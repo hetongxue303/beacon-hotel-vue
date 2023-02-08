@@ -8,7 +8,7 @@
           fit="fill"
           :src="userStore.getAvatar"
         />
-<!--        <span class="center-username">{{ userStore.getUsername }}</span>-->
+        <!--        <span class="center-username">{{ userStore.getUsername }}</span>-->
         <span class="center-username">admin</span>
       </span>
     </span>
@@ -29,8 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import {ElMessage, ElMessageBox} from 'element-plus'
-import {useUserStore} from '../../../store/modules/user'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useUserStore } from '../../../store/modules/user'
 
 const userStore = useUserStore()
 const handlerLogout = async () => {
@@ -39,7 +39,7 @@ const handlerLogout = async () => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    //TODO 处理退出
+    // TODO 处理退出
     // const {data} = await logout()
     // switch (data.code) {
     //   case 200:

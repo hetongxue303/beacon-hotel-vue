@@ -1,9 +1,9 @@
-import {defineStore} from "pinia";
+import { defineStore } from 'pinia'
 
 export const useSettingStore = defineStore('tabs', {
   state: (): TabsType => {
     return {
-      tabs: [{title: '首页', path: '/dashboard'}],
+      tabs: [{ title: '首页', path: '/dashboard' }],
       activeName: '',
       currentTabName: '',
       isContextMenu: false
@@ -21,5 +21,5 @@ export const useSettingStore = defineStore('tabs', {
       this.tabs.push(tab)
     }
   },
-  persist: {key: 'tabs'}
+  persist: { key: 'tabs' }
 })

@@ -1,13 +1,13 @@
-import {App, ObjectDirective} from "vue";
+import { App, ObjectDirective } from 'vue'
 
 const directives = {}
 export default {
-    install(app: App) {
-        Object.keys(directives).forEach((directive: string) => {
-            app.directive(
-                directive,
-                (directives as { [key: string]: ObjectDirective })[directive]
-            )
-        })
-    }
+  install(app: App) {
+    Object.keys(directives).forEach((directive: string) => {
+      app.directive(
+        directive,
+        (directives as { [key: string]: ObjectDirective })[directive]
+      )
+    })
+  }
 }

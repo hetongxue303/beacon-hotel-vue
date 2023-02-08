@@ -1,11 +1,5 @@
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
+<template>首页</template>
 
-<template>
-  首页
-</template>
-
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

@@ -1,9 +1,10 @@
-import {defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import {fileURLToPath} from 'url'
+import { fileURLToPath } from 'url'
 import WindiCSS from 'vite-plugin-windicss'
-import {resolve} from "path";
-import {createSvgIconsPlugin} from 'vite-plugin-svg-icons'
+import { resolve } from 'path'
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import eslintPlugin from 'vite-plugin-eslint'
 
 export default defineConfig({
   plugins: [
@@ -12,6 +13,10 @@ export default defineConfig({
     createSvgIconsPlugin({
       iconDirs: [resolve(process.cwd(), 'src/assets/svg')],
       symbolId: 'icon-[dir]-[name]'
+    }),
+    eslintPlugin({
+      include: ['{**/*,*}.{js,ts,jsx,tsx,html,vue}'],
+      cache: false
     })
   ],
   resolve: {
