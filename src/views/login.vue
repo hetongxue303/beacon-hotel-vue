@@ -1,9 +1,11 @@
 <script setup lang="ts">
+
 </script>
 
 <template>
-  <router-view/>
+  登陆页面
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+
 </style>

@@ -1,9 +1,11 @@
 <script setup lang="ts">
+
 </script>
 
 <template>
-  <router-view/>
+  侧边栏
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+
 </style>
