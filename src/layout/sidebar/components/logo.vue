@@ -1,7 +1,7 @@
 <template>
   <div class="logo_content">
     <img src="https://eladmin.vip/demo/static/img/logo.381d6a3e.png" alt="" />
-    <span v-show="!collapse">烽火酒店后台管理</span>
+    <span v-show="!collapse">烽火酒店管理系统</span>
   </div>
 </template>
 

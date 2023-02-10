@@ -1,14 +1,7 @@
-interface IVariables {
+type VariablesType = {
   menuText: string
-  menuActiveText: string
-  menuSubActiveText: string
-  menuBackgroundColor: string
-  menuSubBackgroundColor: string
-  menuHover: string
-  menuMinWidth: string
-  menuMaxWidth: string
 }
 
-const variables: IVariables
+const variables: VariablesType
 
 export default variables

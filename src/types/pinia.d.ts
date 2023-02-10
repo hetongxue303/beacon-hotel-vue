@@ -1,18 +1,22 @@
-type AppType = {
+interface AppType {
   collapse: boolean
 }
-type UserType = {
+
+interface UserType {
   authorization: string
   username: string
   avatar: string
   roles: string[]
   isAdmin: boolean
 }
-type TabsType = {
+
+interface TabsType {
   tabs: Array<any>
   activeName: string
   currentTabName: string
   isContextMenu?: boolean
 }
-type PermissionType = {}
-type SettingsType = {}
+
+interface PermissionType {}
+
+interface SettingsType {}
