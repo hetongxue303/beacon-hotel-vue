@@ -1,8 +1,4 @@
-import axios, {
-  AxiosRequestConfig,
-  AxiosResponse,
-  InternalAxiosRequestConfig
-} from 'axios'
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { getToken } from './auth'
 
@@ -31,51 +27,22 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   async (response: AxiosResponse) => {
-    const { data, status } = response
-    if (status !== 200 && data.code !== 200) {
-      ElMessage({
-        message: data.message || 'Error',
-        type: 'warning',
-        duration: 5 * 1000
-      })
-      return Promise.reject(new Error(data.message || 'Error'))
-    }
     return response
   },
   async (error: any) => {
-    const { message, response } = error
-    if (response.status === 401 || response.data.code === 401) {
-      ElMessageBox.confirm(
-        '你已被登出，可以取消继续留在该页面，或者重新登录',
-        '提示',
-        {
-          confirmButtonText: '重新登录',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(() => {
-          // TODO 处理重新登录逻辑
-          // useUserStore().systemLogout()
-          window.location.replace('/login')
-          window.location.reload()
-        })
-        .catch(() => {})
+    let { message } = error
+    if (message === 'Network Error') {
+      message = '连接异常'
+    } else if (message.includes('timeout')) {
+      message = '请求超时'
+    } else if (message === 'Request failed with status code 401') {
+      message = '凭证过期'
+    } else if (message === 'Request failed with status code 403') {
+      message = '没有权限'
+    } else {
+      message = error.response.data.message
     }
-    if (response.status === 400 || response.data.code === 400) {
-      ElNotification({
-        message: message || '请求异常',
-        type: 'error',
-        duration: 5 * 1000
-      })
-    }
-    if (response.status === 500 || response.data.code === 500) {
-      ElNotification({
-        message: message || '服务器异常',
-        type: 'error',
-        duration: 5 * 1000
-      })
-    }
+    ElNotification.error(message)
     return Promise.reject(error)
   }
 )

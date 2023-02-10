@@ -2,19 +2,19 @@ import * as qs from 'qs'
 import axios from '../utils/request'
 
 const baseApi = import.meta.env.VITE_BASIC_API
+
 // 获取验证码
 export const getCaptcha = () => {
   return axios({
-    method: 'get',
-    url: `${baseApi}/auth/captchaImage`
+    method: 'GET',
+    url: `${baseApi}/captcha-image`
   })
 }
 
-// 登录处理
 export const login = (data: any) => {
   return axios({
-    method: 'post',
-    url: `${baseApi}/auth/login`,
+    method: 'POST',
+    url: `${baseApi}/login`,
     data: qs.stringify(data),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -22,26 +22,23 @@ export const login = (data: any) => {
   })
 }
 
-// 注销处理
 export const logout = () => {
   return axios({
-    method: 'get',
-    url: `${baseApi}/auth/logout`
+    method: 'GET',
+    url: `${baseApi}/logout`
+  })
+}
+export const getAll = () => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/menu/get/all`
   })
 }
 
-// 获取用户信息
-export const getUserInfo = () => {
+export const getCenterInfo = (username: string) => {
   return axios({
-    method: 'get',
-    url: `${baseApi}/user/info`
-  })
-}
-
-// 刷新token
-export const refreshToken = () => {
-  return axios({
-    method: 'post',
-    url: `${baseApi}/user/refreshToken`
+    method: 'GET',
+    url: `${baseApi}/user/center`,
+    params: { username }
   })
 }

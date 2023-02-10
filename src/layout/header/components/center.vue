@@ -31,27 +31,32 @@
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '../../../store/modules/user'
+import { logout } from '../../../api/auth'
+import { settings } from '../../../settings'
+import { useCookies } from '@vueuse/integrations/useCookies'
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
+const cookie = useCookies()
+const router = useRouter()
 const handlerLogout = async () => {
-  ElMessageBox.confirm('您确认确认退出系统吗？', '提示', {
+  ElMessageBox.confirm('您确认退出系统吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
     // TODO 处理退出
-    // const {data} = await logout()
-    // switch (data.code) {
-    //   case 200:
-    // userStore.systemLogout()
-    //     cookie.remove(settings.AUTHORIZATION_KEY)
-    //     ElMessage.success('注销成功')
-    //     window.location.replace('/login')
-    //     window.location.reload()
-    //     break
-    //   default:
-    //     ElMessage.error('注销失败，请重试！')
-    // }
+    logout().then(({ data }) => {
+      switch (data.code) {
+        case 200:
+          cookie.remove(settings.AUTHORIZATION_KEY)
+          router.replace('/login')
+          ElMessage.success('注销成功')
+          break
+        default:
+          ElMessage.error(data.message || '注销失败，请重试！')
+      }
+    })
   })
 }
 </script>

@@ -1,7 +1,3 @@
-import { useCookies } from '@vueuse/integrations/useCookies'
-
-const cookies = useCookies()
-
 /**
  * localStorage存储
  * @method get 获取
@@ -44,27 +40,5 @@ export const session = {
   },
   clear() {
     sessionStorage.clear()
-  }
-}
-
-/**
- * cookie存储
- * @method get 获取
- * @method getAll 获取所有
- * @method set 设置
- * @method remove 移除
- */
-export const cookie = {
-  get(key: string): any {
-    return JSON.parse(cookies.get(key))
-  },
-  getAll(): any {
-    return JSON.parse(cookies.getAll())
-  },
-  set(key: string, value: any) {
-    cookies.set(key, JSON.stringify(value))
-  },
-  remove(key: string) {
-    cookies.remove(JSON.parse(key))
   }
 }
