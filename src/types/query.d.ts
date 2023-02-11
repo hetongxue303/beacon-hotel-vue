@@ -1,6 +1,6 @@
 interface QueryPage {
-  current_page: number
-  page_size: number
+  page: number
+  size: number
 }
 
 interface QueryType extends QueryPage {

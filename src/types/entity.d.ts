@@ -1,15 +1,12 @@
-import { Runtime } from 'inspector'
-import StackTrace = module
-
 interface Base {
-  create_time: Date
-  update_time: Date
+  create_time?: Date
+  update_time?: Date
 }
 
 interface TypeEntity extends Base {
-  room_type_id: number /* 房间类型ID */
-  room_type_name: string /* 房间类型 */
-  description: string /* 房间备注 */
+  room_type_id?: number /* 房间类型ID */
+  room_type_name?: string /* 房间类型 */
+  description?: string /* 房间备注 */
 }
 
 interface UserEntity extends Base {

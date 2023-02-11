@@ -31,9 +31,9 @@ const handleSelectionChange = (list: RoleEntity[]) =>
   (multipleSelection.value = list)
 
 const total = ref<number>(0)
-const query: QueryRole = reactive({ current_page: 1, page_size: 10 })
-const handleCurrent = (page: number) => (query.current_page = page)
-const handleSize = (size: number) => (query.page_size = size)
+const query: QueryRole = reactive({ page: 1, size: 10 })
+const handleCurrent = (page: number) => (query.page = page)
+const handleSize = (size: number) => (query.size = size)
 const reset = () => {
   query.role_name = undefined
   query.is_status = undefined
@@ -104,8 +104,8 @@ watch(
       </el-table-column>
     </el-table>
     <Pagination
-      :current-page="query.current_page"
-      :page-size="query.page_size"
+      :current-page="query.page"
+      :page-size="query.size"
       :total="total"
       @current-change="handleCurrent"
       @size-change="handleSize"
