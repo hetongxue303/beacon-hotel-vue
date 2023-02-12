@@ -14,18 +14,16 @@ import {
 import { delayRequest } from '../../utils/common'
 import { clone, cloneDeep } from 'lodash'
 
-/* table */
 const tableData = ref<TypeEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<TypeEntity[]>([])
 const tableLoading = ref<boolean>(false)
-const handleSelectionChange = (selection: TypeEntity[]) =>
-  (multipleSelection.value = selection)
-
 const total = ref<number>(0)
 const query: QueryType = reactive({ page: 1, size: 10 })
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
+const handleSelectionChange = (selection: TypeEntity[]) =>
+  (multipleSelection.value = selection)
 const getTableList = () => {
   tableLoading.value = true
   delayRequest(
@@ -191,7 +189,7 @@ watch(
     />
   </el-card>
 
-  <!--新增-->
+  <!--dialog-->
   <el-dialog
     v-model="isDialog"
     :title="dialogTitle"
@@ -218,7 +216,7 @@ watch(
           type="textarea"
           :rows="3"
           resize="none"
-          placeholder="备注(默认：空)"
+          placeholder="默认：空"
         />
       </el-form-item>
     </el-form>
