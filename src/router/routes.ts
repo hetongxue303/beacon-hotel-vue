@@ -12,6 +12,15 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@views/login.vue')
   },
   {
+    name: 'home',
+    path: '/home',
+    meta: {
+      title: '首页',
+      cache: false
+    },
+    component: () => import('@views/home/index.vue')
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',

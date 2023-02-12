@@ -136,6 +136,9 @@ watch(
   },
   { immediate: true, deep: true }
 )
+
+const isPerDialog = ref<boolean>(false)
+const handlerPermission = () => {}
 </script>
 
 <template>
@@ -211,7 +214,9 @@ watch(
       </el-table-column>
       <el-table-column label="操作" align="center" width="300">
         <template #default="{ row }">
-          <el-button type="success">授权</el-button>
+          <el-button type="success" @click="isPerDialog = true">
+            授权
+          </el-button>
           <el-button type="primary" @click="openDialog('update', row)">
             编辑
           </el-button>
@@ -277,6 +282,23 @@ watch(
       <el-button type="primary" @click="handlerOperate(dialogFormRef)">
         确认
       </el-button>
+    </template>
+  </el-dialog>
+
+  <!--permission-->
+  <el-dialog
+    v-model="isPerDialog"
+    title="角色授权"
+    width="30%"
+    destroy-on-close
+    :show-close="false"
+    :close-on-click-modal="false"
+  >
+    <!--TODO 这里是权限内容-->
+    <span>这里是权限内容</span>
+    <template #footer>
+      <el-button @click="isPerDialog = false">返回</el-button>
+      <el-button type="primary" @click="handlerPermission"> 确认</el-button>
     </template>
   </el-dialog>
 </template>
