@@ -74,7 +74,7 @@ export const routes: RouteRecordRaw[] = [
         name: 'type',
         path: '/type',
         meta: {
-          title: '房间类型',
+          title: '客房类型',
           cache: false
         },
         component: () => import('@views/type/index.vue')

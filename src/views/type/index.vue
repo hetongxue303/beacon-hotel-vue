@@ -8,7 +8,7 @@ import { ElNotification, ElTable, FormInstance } from 'element-plus'
 import {
   addRoomType,
   deleteRoomType,
-  getRoomTypeList,
+  getRoomTypePageList,
   updateRoomType
 } from '../../api/room_type'
 import { delayRequest } from '../../utils/common'
@@ -28,7 +28,7 @@ const getTableList = () => {
   tableLoading.value = true
   delayRequest(
     () => {
-      getRoomTypeList(query)
+      getRoomTypePageList(query)
         .then(({ data }) => {
           if (data.code === 200) {
             tableData.value = cloneDeep(data.data.record)
@@ -135,7 +135,7 @@ watch(
   <el-card class="card-box">
     <el-row :gutter="12">
       <el-col :span="4">
-        <el-input v-model="query.room_type_name" placeholder="房间类型" />
+        <el-input v-model="query.room_type_name" placeholder="客房类型" />
       </el-col>
       <el-col :span="4">
         <el-button type="warning" @click="query.room_type_name = undefined">
@@ -157,8 +157,8 @@ watch(
     >
       <el-table-column type="selection" width="30" align="center" />
       <el-table-column prop="room_type_id" label="ID" />
-      <el-table-column prop="room_type_name" label="房间类型" />
-      <el-table-column prop="description" label="房间描述" />
+      <el-table-column prop="room_type_name" label="客房类型" />
+      <el-table-column prop="description" label="备注" />
       <el-table-column label="创建时间" align="center">
         <template #default="{ row }">
           {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
@@ -201,10 +201,10 @@ watch(
     <el-form ref="dialogFormRef" :model="dialogForm" label-width="80">
       <el-form-item
         prop="room_type_name"
-        label="房间类型"
+        label="客房类型"
         :rules="{
           required: true,
-          message: '房间类型不能为空',
+          message: '客房类型不能为空',
           trigger: 'blur'
         }"
       >

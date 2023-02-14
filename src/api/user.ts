@@ -4,10 +4,10 @@ import { UserEntity } from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
-const getUserList = (params: QueryUser) => {
+const getUserPageList = (params: QueryUser) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/user/list`,
+    url: `${baseApi}/user/page/list`,
     params
   })
 }
@@ -32,4 +32,4 @@ const updateUser = (data: UserEntity) => {
   })
 }
 
-export { getUserList, addUser, deleteUser, updateUser }
+export { getUserPageList, addUser, deleteUser, updateUser }

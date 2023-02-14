@@ -38,13 +38,13 @@ interface MenuEntity extends Base {
 }
 
 interface RoomEntity extends Base {
-  room_id?: number /* 房间ID */
-  room_name?: string /* 房间名称 */
-  role_type?: number /* 房间类型 */
-  room_price?: number /* 房间价格 */
-  room_bed?: number /* 床位数 */
+  room_id?: number /* 客房ID */
+  room_name?: string /* 客房名称 */
+  room_type_id?: number /* 客房类型 */
+  room_price?: number /* 客房价格 */
+  room_bed?: number /* 客房床位 */
   room_count?: number /* 可住人数 */
-  is_status?: boolean /* 房间状态 */
+  is_status?: boolean /* 客房状态 */
   room_images?: string /* 客房图片 */
   room_detail?: string /* 客房详情 */
 }

@@ -10,7 +10,7 @@ export const menus: Array<any> = [
     path: '/storey'
   },
   {
-    name: '房间类型',
+    name: '客房类型',
     icon: 'index',
     path: '/type'
   },

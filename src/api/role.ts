@@ -4,10 +4,10 @@ import { RoleEntity } from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
-const getRoleList = (params: QueryRole) => {
+const getRolePageList = (params: QueryRole) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/role/list`,
+    url: `${baseApi}/role/page/list`,
     params
   })
 }
@@ -32,4 +32,4 @@ const updateRole = (data: RoleEntity) => {
   })
 }
 
-export { getRoleList, addRole, deleteRole, updateRole }
+export { getRolePageList, addRole, deleteRole, updateRole }

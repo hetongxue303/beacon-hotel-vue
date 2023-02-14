@@ -7,7 +7,12 @@ import { delayRequest } from '../../../utils/common'
 import { clone, cloneDeep } from 'lodash'
 import { RoleEntity } from '../../../types/entity'
 import { QueryRole } from '../../../types/query'
-import { addRole, deleteRole, getRoleList, updateRole } from '../../../api/role'
+import {
+  addRole,
+  deleteRole,
+  getRolePageList,
+  updateRole
+} from '../../../api/role'
 
 const tableData = ref<RoleEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
@@ -27,7 +32,7 @@ const getTableList = () => {
   tableLoading.value = true
   delayRequest(
     () => {
-      getRoleList(query)
+      getRolePageList(query)
         .then(({ data }) => {
           if (data.code === 200) {
             tableData.value = cloneDeep(data.data.record)

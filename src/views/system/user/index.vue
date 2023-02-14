@@ -7,7 +7,12 @@ import { UserEntity } from '../../../types/entity'
 import { QueryUser } from '../../../types/query'
 import { delayRequest } from '../../../utils/common'
 import { clone, cloneDeep } from 'lodash'
-import { addUser, deleteUser, getUserList, updateUser } from '../../../api/user'
+import {
+  addUser,
+  deleteUser,
+  getUserPageList,
+  updateUser
+} from '../../../api/user'
 import { encryptPasswordToMD5 } from '../../../hook/encrypt'
 
 const tableData = ref<UserEntity[]>([])
@@ -28,7 +33,7 @@ const getTableList = () => {
   tableLoading.value = true
   delayRequest(
     () => {
-      getUserList(query)
+      getUserPageList(query)
         .then(({ data }) => {
           if (data.code === 200) {
             tableData.value = cloneDeep(data.data.record)

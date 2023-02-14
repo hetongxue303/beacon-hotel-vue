@@ -4,10 +4,16 @@ import { QueryType } from '../types/query'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
-const getRoomTypeList = (params: QueryType) => {
+const getRoomTypeList = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/type/list`,
+    url: `${baseApi}/type/list`
+  })
+}
+const getRoomTypePageList = (params: QueryType) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/type/page/list`,
     params
   })
 }
@@ -32,4 +38,10 @@ const updateRoomType = (data: TypeEntity) => {
   })
 }
 
-export { getRoomTypeList, addRoomType, deleteRoomType, updateRoomType }
+export {
+  getRoomTypeList,
+  getRoomTypePageList,
+  addRoomType,
+  deleteRoomType,
+  updateRoomType
+}

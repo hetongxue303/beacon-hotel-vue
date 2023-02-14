@@ -11,8 +11,15 @@ interface QueryUser extends QueryPage {
   real_name?: string
   is_status?: boolean
 }
+
 interface QueryRole extends QueryPage {
   role_name?: string
   is_status?: boolean
 }
-export { QueryType, QueryUser, QueryRole }
+
+interface QueryRoom extends QueryPage {
+  room_name?: string
+  is_status?: boolean
+}
+
+export { QueryType, QueryUser, QueryRole, QueryRoom }
