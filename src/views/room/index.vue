@@ -21,6 +21,7 @@ import {
 import { getRoomTypeList } from '../../api/room_type'
 
 const tableData = ref<RoomEntity[]>([])
+const roomTypeList = ref<TypeEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<RoomEntity[]>([])
 const tableLoading = ref<boolean>(false)
@@ -34,6 +35,7 @@ const handleSelectionChange = (selection: RoomEntity[]) =>
 const reset = () => {
   query.room_name = undefined
   query.is_status = undefined
+  query.room_type_id = undefined
 }
 const handlerSwitchChange = (room: RoomEntity) => {
   switchLoading.value = true
@@ -77,6 +79,11 @@ const getTableList = () => {
     500
   )
 }
+const getRoomTypeData = () => {
+  getRoomTypeList().then(({ data }) =>
+    data.code === 200 ? (roomTypeList.value = cloneDeep(data.data)) : []
+  )
+}
 watch(
   () => query,
   () => {
@@ -84,20 +91,23 @@ watch(
   },
   { deep: true }
 )
-onMounted(() => getTableList())
+onMounted(() => {
+  getTableList()
+  getRoomTypeData()
+})
 
 const isDrawer = ref<boolean>(false)
 const drawerFormRef = ref<FormInstance>()
 const drawerForm = ref<RoomEntity>({ is_status: false })
 const drawerTitle = ref<string>('')
 const drawerOperate = ref<string>('')
-const roomTypeList = ref<TypeEntity[]>([])
 const disabled = reactive({
   update: true,
   delete: true
 })
-const handlerSelectChange = (selected: number) =>
-  (drawerForm.value.room_type_id = selected)
+const handlerSelectChange = (selected: number) => {
+  drawerForm.value.room_type_id = selected
+}
 const openDrawer = (operate: string, row?: RoomEntity) => {
   if (operate === 'insert') {
     drawerTitle.value = '新增客房'
@@ -109,9 +119,7 @@ const openDrawer = (operate: string, row?: RoomEntity) => {
       drawerForm.value = cloneDeep(multipleSelection.value[0] as RoomEntity)
     }
   }
-  getRoomTypeList().then(({ data }) =>
-    data.code === 200 ? (roomTypeList.value = cloneDeep(data.data)) : []
-  )
+  getRoomTypeData()
   isDrawer.value = true
   drawerOperate.value = operate
 }
@@ -181,6 +189,21 @@ watch(
     <el-row :gutter="12">
       <el-col :span="4">
         <el-input v-model="query.room_name" placeholder="客房名称" />
+      </el-col>
+      <el-col :span="4">
+        <el-select
+          v-model="query.room_type_id"
+          placeholder="客房类型"
+          clearable
+          @clear="query.room_type_id = undefined"
+        >
+          <el-option
+            v-for="item in roomTypeList"
+            :key="item.room_type_id"
+            :label="item.room_type_name"
+            :value="item.room_type_id"
+          />
+        </el-select>
       </el-col>
       <el-col :span="4">
         <el-select

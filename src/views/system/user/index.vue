@@ -288,6 +288,26 @@ watch(
         <el-input v-model="dialogForm.real_name" />
       </el-form-item>
       <el-form-item
+        label="性别"
+        prop="gender"
+        :rules="{ required: true, message: '请选择性别', trigger: 'change' }"
+      >
+        <el-radio-group v-model="dialogForm.gender">
+          <el-radio label="1">男</el-radio>
+          <el-radio label="2">女</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item
+        label="状态"
+        :rules="{ required: true, message: '请选择状态', trigger: 'change' }"
+        prop="is_status"
+      >
+        <el-radio-group v-model="dialogForm.is_status">
+          <el-radio-button :label="true">启用</el-radio-button>
+          <el-radio-button :label="false">禁用</el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item
         v-show="dialogOperate === 'insert'"
         prop="password"
         label="密码"
@@ -297,18 +317,6 @@ watch(
           show-password
           placeholder="默认：123456"
         />
-      </el-form-item>
-      <el-form-item label="性别">
-        <el-radio-group v-model="dialogForm.gender">
-          <el-radio label="1">男</el-radio>
-          <el-radio label="2">女</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-radio-group v-model="dialogForm.is_status">
-          <el-radio-button :label="true">启用</el-radio-button>
-          <el-radio-button :label="false">禁用</el-radio-button>
-        </el-radio-group>
       </el-form-item>
       <el-form-item prop="description" label="备注">
         <el-input
@@ -321,7 +329,7 @@ watch(
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="isDialog = false">返回</el-button>
+      <el-button type="danger" text @click="isDialog = false">返回</el-button>
       <el-button type="primary" @click="handlerOperate(dialogFormRef)">
         确认
       </el-button>

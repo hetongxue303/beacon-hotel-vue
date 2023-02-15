@@ -152,5 +152,14 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@views/about/index.vue')
       }
     ]
+  },
+  {
+    name: 'hotel-list',
+    path: '/home/hotel-list',
+    meta: {
+      title: '酒店列表',
+      cache: false
+    },
+    component: () => import('@views/home/hotel-list.vue')
   }
 ]

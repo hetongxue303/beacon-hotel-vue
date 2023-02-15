@@ -266,7 +266,11 @@ const handlerPermission = () => {}
       >
         <el-input v-model="dialogForm.role_name" />
       </el-form-item>
-      <el-form-item label="角色状态">
+      <el-form-item
+        label="角色状态"
+        prop="is_status"
+        :rules="{ required: true, message: '请选择状态', trigger: 'change' }"
+      >
         <el-radio-group v-model="dialogForm.is_status">
           <el-radio-button :label="true">启用</el-radio-button>
           <el-radio-button :label="false">禁用</el-radio-button>
@@ -283,7 +287,7 @@ const handlerPermission = () => {}
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="isDialog = false">返回</el-button>
+      <el-button type="danger" text @click="isDialog = false">返回</el-button>
       <el-button type="primary" @click="handlerOperate(dialogFormRef)">
         确认
       </el-button>

@@ -221,7 +221,7 @@ watch(
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="isDialog = false">返回</el-button>
+      <el-button type="danger" text @click="isDialog = false">返回</el-button>
       <el-button type="primary" @click="handlerOperate(dialogFormRef)">
         确认
       </el-button>

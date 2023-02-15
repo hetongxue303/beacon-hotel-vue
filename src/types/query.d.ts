@@ -20,6 +20,7 @@ interface QueryRole extends QueryPage {
 interface QueryRoom extends QueryPage {
   room_name?: string
   is_status?: boolean
+  room_type_id?: number
 }
 
 export { QueryType, QueryUser, QueryRole, QueryRoom }
