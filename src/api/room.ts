@@ -11,6 +11,13 @@ const getRoomPageList = (params: QueryRoom) => {
     params
   })
 }
+const getRoomPageHomeList = (params: QueryRoom) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/room/home/page/list`,
+    params
+  })
+}
 const addRoom = (data: RoomEntity) => {
   return axios({
     method: 'POST',
@@ -39,4 +46,11 @@ const updateRoomStatus = (data: RoomEntity) => {
   })
 }
 
-export { getRoomPageList, addRoom, deleteRoom, updateRoom, updateRoomStatus }
+export {
+  getRoomPageList,
+  addRoom,
+  deleteRoom,
+  updateRoom,
+  updateRoomStatus,
+  getRoomPageHomeList
+}

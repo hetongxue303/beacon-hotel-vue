@@ -1,331 +1,278 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import carousel1 from '../../assets/images/bn1.png'
 import carousel2 from '../../assets/images/bn2.png'
 import carousel3 from '../../assets/images/bn3.png'
 import carousel4 from '../../assets/images/bn4.png'
-import box1 from '../../assets/images/box1.png'
-import box2 from '../../assets/images/box2.png'
-import box3 from '../../assets/images/box3.png'
-import box4 from '../../assets/images/box4.png'
-import up1 from '../../assets/images/up1.png'
-import up2 from '../../assets/images/up2.png'
-import up3 from '../../assets/images/up3.png'
-import up4 from '../../assets/images/up4.png'
+import image1 from '../../assets/images/box1.png'
+import image2 from '../../assets/images/box2.png'
+import image3 from '../../assets/images/box3.png'
+import image4 from '../../assets/images/box4.png'
+import image5 from '../../assets/images/up1.png'
+import image6 from '../../assets/images/up2.png'
+import image7 from '../../assets/images/up3.png'
+import image8 from '../../assets/images/up4.png'
+import logo from '../../assets/images/logo.png'
+import { RoomEntity, TypeEntity } from '../../types/entity'
 import Pagination from '../../components/Pagination/index.vue'
-import { RoomEntity } from '../../types/entity'
+import { delayRequest, randomNumber } from '../../utils/common'
+import { getRoomPageHomeList } from '../../api/room'
+import { clone, cloneDeep } from 'lodash'
+import { getRoomTypeList } from '../../api/room_type'
+import { QueryRoom } from '../../types/query'
 
 const carousels = reactive([carousel1, carousel2, carousel3, carousel4])
-const box = reactive([box1, box2, box3, box4])
-const up = reactive([up1, up2, up3, up4])
+const images = reactive([
+  image1,
+  image2,
+  image3,
+  image4,
+  image5,
+  image6,
+  image7,
+  image8
+])
 const interval = ref<number>(4000)
-const bthLoading = ref<boolean>(false)
-const isShow = ref<boolean>(false)
-const list = ref<RoomEntity[]>([])
-const query: any = reactive({ page: 1, size: 10 })
-const total = ref<number>(0)
-const value2 = ref<string>('')
+const listData = ref<RoomEntity[]>([])
+const query: QueryRoom = reactive({ page: 1, size: 10 })
+const total = ref<number>(1000)
+const listLoading = ref<boolean>(false)
+const roomTypeList = ref<TypeEntity[]>([])
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
-const shortcuts = [
-  {
-    text: '上一周',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-      return [start, end]
-    }
-  },
-  {
-    text: '上个月',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-      return [start, end]
-    }
-  },
-  {
-    text: '最近三个月',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-      return [start, end]
-    }
-  }
-]
-
-const currentDate = ref(new Date())
+const randomImage = (data: any[]) => {
+  return data[randomNumber(1, data.length) as number]
+}
+const getRoomList = () => {
+  listLoading.value = true
+  delayRequest(
+    () => {
+      getRoomPageHomeList(query)
+        .then(({ data }) => {
+          if (data.code === 200) {
+            listData.value = cloneDeep(data.data.record)
+            total.value = clone(data.data.total)
+          }
+        })
+        .finally(() => (listLoading.value = false))
+    },
+    5,
+    500
+  )
+}
+const getRoomTypeData = () => {
+  delayRequest(
+    () => {
+      getRoomTypeList().then(({ data }) =>
+        data.code === 200
+          ? (roomTypeList.value = cloneDeep(data.data))
+          : (roomTypeList.value = [])
+      )
+    },
+    5,
+    500
+  )
+}
+watch(
+  () => query,
+  () => getRoomList(),
+  { deep: true }
+)
+onMounted(() => {
+  getRoomTypeData()
+  getRoomList()
+})
 </script>
 
 <template>
   <div class="home-box">
     <el-affix>
       <div class="header">
-        <div class="left">
-          <el-image style="width: 100px; height: 80px" />
-          <span>LOGO</span>
-        </div>
-        <div class="right">
+        <el-link href="/home" :underline="false">
+          <el-image
+            :src="logo"
+            fit="contain"
+            style="width: 120px; height: 50px"
+          />
+        </el-link>
+        <div>
           <span style="color: #b7b6b7">客服热线：</span>
           <span style="color: #c69e0b; font-weight: bold; margin-right: 10px">
             400-820-8888
           </span>
-          <el-button type="success" @click="isShow = !isShow">
-            酒店预约
-          </el-button>
+          <el-button type="success"> 酒店预约</el-button>
           <el-button type="primary">查询</el-button>
         </div>
       </div>
     </el-affix>
-    <div v-if="isShow">
-      <el-carousel :interval="interval + 1000" arrow="always" height="500px">
-        <el-carousel-item v-for="carousel in carousels" :key="carousel">
-          <el-image :src="carousel" style="height: 100%; width: 100%" />
-        </el-carousel-item>
-      </el-carousel>
-      <div class="box">
-        <div v-for="b in box" :key="b" class="image-box">
-          <el-image :src="b" />
-        </div>
-      </div>
-      <div class="text-box">
-        <h1 style="font-size: 38px">特色推荐</h1>
-        <span style="color: #666666">
-          旅行是遇见不同的风光、人群、事物，也是在不同经历的碰撞和交织中让人们的生活和生命更加丰富
-        </span>
-        <div class="detail-box">
-          <el-carousel :interval="interval" type="card" height="350px">
-            <el-carousel-item v-for="item in up" :key="item">
-              <el-image :src="item" />
-            </el-carousel-item>
-          </el-carousel>
-        </div>
-      </div>
-      <div class="user-box">
-        <h1 style="font-size: 38px">用户预约</h1>
-        <div
-          style="display: flex; justify-content: center; align-items: center"
-        >
-          <el-form>
-            <el-form-item label="您的姓名">
-              <el-input />
-            </el-form-item>
-            <el-form-item label="身份证号">
-              <el-input />
-            </el-form-item>
-            <el-form-item
-              label="人&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数"
+    <el-carousel :interval="interval + 1000" arrow="always" height="400px">
+      <el-carousel-item v-for="carousel in carousels" :key="carousel">
+        <el-image :src="carousel" style="height: 100%; width: 100%" />
+      </el-carousel-item>
+    </el-carousel>
+    <el-row justify="center">
+      <el-col :span="20" class="banner-box">
+        <el-card body-style="padding: 0" class="banner-card">
+          <span style="color: #57a3e5; font-size: 18px">房间信息</span>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row justify="center">
+      <el-col :span="4" style="padding-right: 20px">
+        <el-card body-style="padding: 0" shadow="always">
+          <el-menu default-active="0" style="width: 100%; height: 100%">
+            <el-menu-item index="0" @click="query.room_type_id = undefined">
+              <span>全部</span>
+            </el-menu-item>
+            <el-menu-item
+              v-for="item in roomTypeList"
+              :key="item.room_type_id"
+              :index="item.room_type_id"
+              @click="query.room_type_id = item.room_type_id"
             >
-              <el-input />
-            </el-form-item>
-            <el-form-item label="预约时间">
-              <el-date-picker
-                v-model="value2"
-                type="datetimerange"
-                :shortcuts="shortcuts"
-                range-separator="到"
-                start-placeholder="入住时间"
-                end-placeholder="离开时间"
-              />
-            </el-form-item>
-          </el-form>
-          <div class="bth-box">
-            <el-button
-              v-loading="bthLoading"
-              class="confirm"
-              round
-              type="primary"
-            >
-              <span>查询</span>
-            </el-button>
-            <el-button
-              v-loading="bthLoading"
-              class="confirm"
-              round
-              type="success"
-            >
-              <span>预约</span>
-            </el-button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else>
-      <el-row
-        style="display: flex; justify-content: center; align-items: center"
+              <span>{{ item.room_type_name }}</span>
+            </el-menu-item>
+          </el-menu>
+        </el-card>
+      </el-col>
+      <el-col
+        v-if="listData.length === 0"
+        v-loading="listLoading"
+        :span="16"
+        class="detail-nodata-show"
       >
-        <el-col
-          v-for="item in 20"
-          :key="item"
-          style="margin-bottom: 30px"
-          :span="5"
-        >
-          <el-card shadow="hover" class="image-card">
-            <el-image
-              src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-              class="image"
-            />
-            <div style="padding: 14px">
-              <span>Yummy hamburger</span>
-              <div class="bottom">
-                <time class="time">{{ currentDate }}</time>
-                <el-button text class="button">Operating</el-button>
+        <span>暂无数据</span>
+      </el-col>
+      <el-col v-else v-loading="listLoading" :span="16">
+        <el-row justify="start">
+          <el-col v-for="item in listData" :key="item" :span="6">
+            <el-card
+              shadow="hover"
+              class="detail-card-box"
+              body-style="padding: 0"
+            >
+              <el-image class="image-box" :src="randomImage(images)" />
+              <div style="padding: 5px 10px 5px 10px; font-size: 14px">
+                <div class="room-detail">
+                  <span style="color: #7a8b9a"> {{ item.room_name }} </span>
+                  <span style="font-size: 12px; color: red">
+                    ￥{{ item.room_price }}
+                  </span>
+                </div>
+                <div class="room-detail-button">
+                  <el-button type="danger" size="small"> 立即预约</el-button>
+                </div>
               </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-      <Pagination
-        :current-page="query.page"
-        :page-size="query.size"
-        :total="total"
-        style="display: flex; justify-content: center; align-items: center"
-        @current-change="handleCurrent"
-        @size-change="handleSize"
-      />
-    </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
   </div>
-  <el-divider />
+  <div class="page-box">
+    <Pagination
+      :current-page="query.page"
+      :page-size="query.size"
+      :total="total"
+      @current-change="handleCurrent"
+      @size-change="handleSize"
+    />
+  </div>
   <div class="footer">沪ICP备19037546号-1 沪公网安备 31011502002275号</div>
   <el-backtop :right="100" :bottom="100" />
 </template>
 
 <style scoped lang="scss">
-.image-card {
-  padding: 0;
-  width: 300px;
-  height: 400px;
-}
-
-.time {
-  font-size: 12px;
-  color: #999;
-}
-
-.bottom {
-  margin-top: 13px;
-  line-height: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.button {
-  padding: 0;
-  min-height: auto;
-}
-
-.image {
-  width: 100%;
-  height: 300px;
-  display: block;
-}
-
 $bg-height: auto;
-$image-box-width: 300px;
-$image-box-height: 400px;
-$image-box-mt: 10px;
-$image-box-mr: 30px;
-$image-box-scale: 1.05;
+$header-footer-height: 60px;
 @mixin default-display {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-:deep(.el-form-item__label) {
-  font-size: 26px;
-}
-
-:deep(.el-button.confirm) {
-  width: 80px;
-  height: 80px;
-  margin-left: 10px;
-  font-size: 22px;
-  margin-bottom: 20px;
+.detail-nodata-show {
+  @include default-display;
+  font-size: 18px;
+  color: #7a8b9a;
 }
 
 .home-box {
   width: 100%;
   height: $bg-height;
   background-color: #f3f3f3;
+  padding-bottom: 25px;
 
   .header {
     background-color: #ffffff;
     width: 100%;
-    height: 80px;
+    height: $header-footer-height;
     @include default-display;
     justify-content: space-between;
-    padding: 0 50px 0 50px;
+    padding: 0 80px 0 80px;
+  }
+}
+
+.page-box {
+  @include default-display;
+  height: 50px;
+  background-color: #f3f3f3;
+  padding-bottom: 30px;
+}
+
+.detail-card-box {
+  width: 200px;
+  height: 320px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  transition: all 0.15s 0s linear;
+
+  &:hover {
+    transform: scale(1.08);
   }
 }
 
 .image-box {
-  background-color: #7a8b9a;
-  width: $image-box-width;
-  height: $image-box-height;
-  margin-right: $image-box-mr;
-  margin-top: $image-box-mt;
-  transition: linear, all, 0.3s;
-
-  &:nth-child(4) {
-    margin-right: 0;
-  }
-
-  &:hover {
-    transform: scale($image-box-scale);
-  }
+  width: 200px;
+  height: 250px;
 }
 
-.box {
-  background-color: #bfcbd9;
+.room-detail {
+  @include default-display;
+  justify-content: space-between;
+}
+
+.banner-box {
+  @include default-display;
+  background-color: #ecf4fe;
   width: 100%;
-  height: 300px;
-  @include default-display;
-  align-items: normal;
-  padding: 120px 0 0 0;
+  height: 50px;
+  margin: 20px 0 20px 0;
 }
 
-.text-box {
-  margin-top: 430px;
+.banner-card {
+  @include default-display;
+  padding: 0 0 0 20px;
+  justify-content: start;
+  line-height: 60px;
+  height: 60px;
   width: 100%;
-  height: 200px;
-  flex-direction: column;
-  @include default-display;
+  background-color: #ecf4fe;
 }
 
-.detail-box {
-  width: 80%;
-  margin-top: 50px;
-}
-
-.user-box {
-  width: 100%;
-  height: 500px;
-  margin-top: 70px;
+.room-detail-button {
   @include default-display;
-  flex-direction: column;
-
-  h1 {
-    margin-bottom: 20px;
-  }
-}
-
-.bth-box {
-  height: 100%;
-  @include default-display;
-  flex-direction: column;
-  justify-content: space-around;
+  margin-top: 5px;
+  line-height: 12px;
+  justify-content: right;
 }
 
 .footer {
-  position: absolute;
-  height: 60px;
+  font-size: 8px;
+  color: #bfcbd9;
+  height: $header-footer-height - 20px;
   width: 100%;
-  top: $bg-height - 60px;
+  background-color: #f3f3f3;
   @include default-display;
 }
 </style>

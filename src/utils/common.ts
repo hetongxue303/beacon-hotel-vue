@@ -16,7 +16,7 @@ export const setBrowserTitle = (router: Router) => {
  * @param min 最小值
  * @param max 最大值
  */
-export const randomTimeout = (
+export const randomNumber = (
   min: number | undefined,
   max: number | undefined
 ): number | undefined => {
@@ -40,5 +40,5 @@ export const delayRequest = (
 ) => {
   setTimeout(async () => {
     callback()
-  }, randomTimeout(min, max))
+  }, randomNumber(min, max))
 }
