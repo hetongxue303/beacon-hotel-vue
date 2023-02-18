@@ -13,6 +13,7 @@ import {
 } from '../../api/room_type'
 import { delayRequest } from '../../utils/common'
 import { clone, cloneDeep } from 'lodash'
+import { DURATION_TIME } from '../../settings'
 
 const tableData = ref<TypeEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
@@ -76,22 +77,34 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
       if (dialogOperate.value === 'insert') {
         addRoomType(dialogForm.value).then(({ data }) => {
           if (data.code === 200) {
-            ElNotification.success({ message: '添加成功', duration: 1500 })
+            ElNotification.success({
+              message: '添加成功',
+              duration: DURATION_TIME
+            })
             isDialog.value = false
             getTableList()
             return
           }
-          ElNotification.error({ message: '添加失败，请重试!', duration: 1500 })
+          ElNotification.error({
+            message: '添加失败，请重试!',
+            duration: DURATION_TIME
+          })
         })
       } else {
         updateRoomType(dialogForm.value).then(({ data }) => {
           if (data.code === 200) {
-            ElNotification.success({ message: '更新成功', duration: 1500 })
+            ElNotification.success({
+              message: '更新成功',
+              duration: DURATION_TIME
+            })
             isDialog.value = false
             getTableList()
             return
           }
-          ElNotification.error({ message: '更新失败，请重试!', duration: 1500 })
+          ElNotification.error({
+            message: '更新失败，请重试!',
+            duration: DURATION_TIME
+          })
         })
       }
     }
@@ -100,11 +113,14 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
 const handlerDelete = (id: number) => {
   deleteRoomType(id).then(async ({ data }) => {
     if (data.code === 200) {
-      ElNotification.success({ message: '删除成功', duration: 1500 })
+      ElNotification.success({ message: '删除成功', duration: DURATION_TIME })
       getTableList()
       return
     }
-    ElNotification.error({ message: '删除失败，请重试!', duration: 1500 })
+    ElNotification.error({
+      message: '删除失败，请重试!',
+      duration: DURATION_TIME
+    })
   })
 }
 watch(

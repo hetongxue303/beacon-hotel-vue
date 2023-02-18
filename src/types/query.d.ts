@@ -26,4 +26,5 @@ interface QueryOrder extends QueryPage {
   order_num?: string
   is_status?: string
 }
-export { QueryType, QueryUser, QueryRole, QueryRoom, QueryOrder }
+interface QueryCustomer extends QueryPage {}
+export { QueryType, QueryUser, QueryRole, QueryRoom, QueryOrder, QueryCustomer }

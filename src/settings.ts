@@ -21,6 +21,7 @@ export const PRIVATE_KEY =
   'ar+O0KTttKUSDEH5w20hvzc933nmqxINgu744utYrd2rn85fArSME0LlAkEA/R5I\n' +
   'Ae6A8NQDhSnstfKXB73mQAmAkF27siUBSlg57eBLPBJ854LtOCZ1/itdbRGPm3g0\n' +
   'IPKI7Em1/0lXtTisQQ=='
+export const DURATION_TIME = 1500
 
 export enum settings {
   AUTHORIZATION_KEY = 'authorization',

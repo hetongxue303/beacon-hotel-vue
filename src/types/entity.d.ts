@@ -50,7 +50,19 @@ interface RoomEntity extends Base {
   room_detail?: string /* 客房详情 */
 }
 
-interface CustomerEntity extends Base {}
+interface CustomerEntity extends Base {
+  customer_id?: number
+  customer_name?: string
+  customer_account?: string
+  customer_password?: string
+  is_status?: boolean
+  description?: string
+}
+
+interface CustomerLoginDto {
+  customer_account: string
+  customer_password: string
+}
 
 interface OrderEntity extends Base {
   order_id?: number /* 订单ID */
@@ -68,5 +80,7 @@ export {
   RoleEntity,
   MenuEntity,
   RoomEntity,
-  OrderEntity
+  OrderEntity,
+  CustomerLoginDto,
+  CustomerEntity
 }

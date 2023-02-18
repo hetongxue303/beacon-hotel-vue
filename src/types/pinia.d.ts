@@ -1,3 +1,5 @@
+import { CustomerEntity } from './entity'
+
 interface AppType {
   collapse: boolean
 }
@@ -17,6 +19,11 @@ interface TabsType {
   isContextMenu?: boolean
 }
 
+interface HomeType {
+  is_login: boolean
+  login_info: CustomerEntity
+  is_admin: boolean
+}
 interface PermissionType {}
 
 interface SettingsType {}
