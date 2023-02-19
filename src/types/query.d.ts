@@ -22,9 +22,14 @@ interface QueryRoom extends QueryPage {
   is_status?: boolean
   room_type_id?: number
 }
+
 interface QueryOrder extends QueryPage {
   order_num?: string
-  is_status?: string
+  is_state?: string
 }
-interface QueryCustomer extends QueryPage {}
+
+interface QueryCustomer extends QueryPage {
+  customer_name?: string
+}
+
 export { QueryType, QueryUser, QueryRole, QueryRoom, QueryOrder, QueryCustomer }

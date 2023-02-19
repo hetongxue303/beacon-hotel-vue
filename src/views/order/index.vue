@@ -40,7 +40,10 @@ const getTableList = () => {
     500
   )
 }
-const reset = () => {}
+const reset = () => {
+  query.order_num = undefined
+  query.is_state = undefined
+}
 watch(
   () => multipleSelection.value,
   () => {
@@ -152,17 +155,15 @@ onMounted(() => getTableList())
       </el-col>
       <el-col :span="4">
         <el-select
-          v-model="query.is_status"
+          v-model="query.is_state"
           placeholder="状态"
           clearable
-          @clear="query.is_status = undefined"
+          @clear="query.is_state = undefined"
         >
-          <el-option label="已过期" :value="0" />
-          <el-option label="已预约" :value="1" />
-          <el-option label="已入住" :value="2" />
-          <el-option label="已退房" :value="3" />
-          <el-option label="待付款" :value="4" />
-          <el-option label="待入住" :value="5" />
+          <el-option label="空闲房间" value="0" />
+          <el-option label="已预约" value="1" />
+          <el-option label="已入住" value="2" />
+          <el-option label="维修中" value="3" />
         </el-select>
       </el-col>
       <el-col :span="4">
@@ -199,37 +200,34 @@ onMounted(() => getTableList())
       <el-table-column prop="order_num" label="订单编号" />
       <el-table-column prop="customer.customer_name" label="姓名" />
       <el-table-column label="价格">
-        <template #default="{ row }"> {{ row.room.room_price }}元/间</template>
+        <template #default="{ row }">
+          <span :style="{ color: 'red' }"> ￥{{ row.room.room_price }} </span>
+        </template>
       </el-table-column>
       <el-table-column label="状态">
         <template #default="{ row }">
           <el-tag
-            v-if="row.is_status === '1'"
+            v-if="row.room.is_state === '0'"
             type="success"
-            effect="dark"
             disable-transitions
           >
-            已入住
+            空闲
           </el-tag>
           <el-tag
-            v-else-if="row.is_status === '2'"
+            v-else-if="row.room.is_state === '1'"
             type="warning"
-            effect="dark"
             disable-transitions
           >
             已预约
           </el-tag>
           <el-tag
-            v-else-if="row.is_status === '3'"
-            type="danger"
-            effect="dark"
+            v-else-if="row.room.is_state === '2'"
+            type="info"
             disable-transitions
           >
-            已退房
+            已入住
           </el-tag>
-          <el-tag v-else type="info" effect="dark" disable-transitions>
-            已过期
-          </el-tag>
+          <el-tag v-else type="danger" disable-transitions> 维修中</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center">

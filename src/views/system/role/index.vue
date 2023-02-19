@@ -194,7 +194,6 @@ const handlerPermission = () => {}
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="30" align="center" />
-      <el-table-column prop="role_id" label="ID" />
       <el-table-column prop="role_name" label="名称" />
       <el-table-column prop="description" label="备注" />
       <el-table-column label="状态">

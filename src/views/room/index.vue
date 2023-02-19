@@ -19,6 +19,7 @@ import {
   updateRoomStatus
 } from '../../api/room'
 import { getRoomTypeList } from '../../api/room_type'
+import { DURATION_TIME } from '../../settings'
 
 const tableData = ref<RoomEntity[]>([])
 const roomTypeList = ref<TypeEntity[]>([])
@@ -226,7 +227,10 @@ watch(
         type="danger"
         :disabled="disabled.delete"
         @click="
-          ElNotification.warning({ message: '待开发...', duration: 1500 })
+          ElNotification.warning({
+            message: '待开发...',
+            duration: DURATION_TIME
+          })
         "
       >
         删除
@@ -247,7 +251,6 @@ watch(
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="30" align="center" />
-      <el-table-column prop="room_id" label="ID" />
       <el-table-column prop="room_name" label="客房名称" />
       <el-table-column prop="type.room_type_name" label="类型" />
       <el-table-column label="床位">
@@ -386,7 +389,7 @@ watch(
       </el-form-item>
       <el-form-item
         prop="is_status"
-        label="客房状态"
+        label="是否启用"
         :rules="{ required: true }"
       >
         <el-radio-group v-model="drawerForm.is_status">
@@ -401,6 +404,8 @@ watch(
           type="textarea"
           resize="none"
           placeholder="默认：空"
+          clearable
+          @clear="drawerForm.room_detail = undefined"
         />
       </el-form-item>
     </el-form>

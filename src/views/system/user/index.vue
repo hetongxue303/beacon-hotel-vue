@@ -201,7 +201,6 @@ watch(
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="30" align="center" />
-      <el-table-column prop="user_id" label="ID" />
       <el-table-column prop="username" label="账户" />
       <el-table-column prop="real_name" label="姓名" />
       <el-table-column label="性别">

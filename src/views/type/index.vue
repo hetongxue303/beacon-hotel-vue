@@ -172,7 +172,6 @@ watch(
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="30" align="center" />
-      <el-table-column prop="room_type_id" label="ID" />
       <el-table-column prop="room_type_name" label="客房类型" />
       <el-table-column prop="description" label="备注" />
       <el-table-column label="创建时间" align="center">

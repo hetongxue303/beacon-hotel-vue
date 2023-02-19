@@ -46,6 +46,7 @@ interface RoomEntity extends Base {
   room_bed?: number /* 客房床位 */
   room_count?: number /* 可住人数 */
   is_status?: boolean /* 客房状态 */
+  is_state?: string /* 客房状态 */
   room_images?: string /* 客房图片 */
   room_detail?: string /* 客房详情 */
 }
@@ -72,6 +73,10 @@ interface OrderEntity extends Base {
   room_id?: number /* 房间ID */
   room?: RoomEntity /* 房间信息 */
   is_status?: string /* 入住状态：1->已预约 2->已入住 3->已退房 */
+  count_num?: number
+  start_date_time?: Date
+  leave_date_time?: Date
+  description?: string
 }
 
 export {

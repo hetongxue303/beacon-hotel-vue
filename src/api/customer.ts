@@ -25,6 +25,12 @@ const customerLogin = (data: CustomerLoginDto) => {
     data
   })
 }
+const customerLogout = () => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/customer/logout`
+  })
+}
 const deleteCustomer = (id: number) => {
   return axios({
     method: 'DELETE',
@@ -52,5 +58,6 @@ export {
   deleteCustomer,
   updateCustomer,
   updateCustomerStatus,
-  customerLogin
+  customerLogin,
+  customerLogout
 }

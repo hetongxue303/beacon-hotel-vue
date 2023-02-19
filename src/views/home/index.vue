@@ -16,6 +16,7 @@ import logo from '../../assets/images/logo.png'
 import {
   CustomerEntity,
   CustomerLoginDto,
+  OrderEntity,
   RoomEntity,
   TypeEntity
 } from '../../types/entity'
@@ -25,11 +26,12 @@ import { getRoomPageHomeList } from '../../api/room'
 import { clone, cloneDeep } from 'lodash'
 import { getRoomTypeList } from '../../api/room_type'
 import { QueryRoom } from '../../types/query'
-import { ElNotification, FormInstance } from 'element-plus'
+import { ElMessage, ElNotification, FormInstance } from 'element-plus'
 import { useHomeStore } from '../../store/modules/home'
 import { insertCustomer, customerLogin } from '../../api/customer'
 import { encryptPasswordToMD5 } from '../../hook/encrypt'
 import { DURATION_TIME } from '../../settings'
+import { addOrder } from '../../api/order'
 
 /* 初始化相关 */
 const carousels = reactive([carousel1, carousel2, carousel3, carousel4])
@@ -184,35 +186,114 @@ const handlerLogin = async (formEl: FormInstance | undefined) => {
             homeStore.login_info = cloneDeep(data.data)
             loginLoading.value = false
             loginDialog.value = false
+            ElMessage.success({
+              message: `欢迎回来，${homeStore.login_info?.customer_name}`,
+              duration: DURATION_TIME
+            })
           })
         },
         5,
-        500
+        100
       )
     }
   })
 }
 
-/* 详情/预约相关 */
+/* 详情相关 */
 const isDialog = ref<boolean>(false)
-const dialogFormRef = ref<FormInstance>()
 const dialogForm = ref<RoomEntity>({})
-const dialogTitle = ref<string>('')
-const dialogOperate = ref<string>('')
 const openDialog = (operate: string, row?: RoomEntity) => {
-  if (operate === 'detail') {
-    dialogTitle.value = '房间详情'
-    if (row) dialogForm.value = cloneDeep(row)
-  }
+  if (operate === 'detail' && row) dialogForm.value = cloneDeep(row)
   isDialog.value = true
-  dialogOperate.value = operate
 }
-const handlerOperate = async (formEl: FormInstance | undefined) => {
+
+/* 预约相关 */
+const dateValue = ref<Date[]>([])
+const dateNum = ref<number>(0)
+const dateFlag = ref<boolean>(false)
+const reservationDialog = ref<boolean>(false)
+const reservationForm = ref<OrderEntity>({ count_num: 1 })
+const reservationFormRef = ref<FormInstance>()
+watch(
+  () => dateValue.value,
+  (value) => {
+    if (value.length > 0) {
+      const current = new Date()
+      dateFlag.value = false
+      dateNum.value =
+        dateValue.value[1].getDate() - dateValue.value[0].getDate()
+      if (current.getDate() > dateValue.value[0].getDate()) {
+        ElMessage.warning({
+          message: '入住时间应大于当前时间！',
+          duration: DURATION_TIME
+        })
+        return
+      }
+      if (current.getDate() + 7 < dateValue.value[1].getDate()) {
+        ElMessage.warning({
+          message: '离开时间应在七天内！',
+          duration: DURATION_TIME
+        })
+        return
+      }
+      // eslint-disable-next-line prefer-destructuring
+      reservationForm.value.start_date_time = dateValue.value[0]
+      // eslint-disable-next-line prefer-destructuring
+      reservationForm.value.leave_date_time = dateValue.value[1]
+      dateFlag.value = true
+    }
+  },
+  { deep: true }
+)
+watch(
+  () => reservationDialog.value,
+  (value) => {
+    if (!value) {
+      reservationForm.value = { count_num: 1 }
+      dateNum.value = 0
+      dateFlag.value = false
+      dateValue.value = []
+    }
+  },
+  { deep: true }
+)
+const openReservationDialog = (row: RoomEntity) => {
+  if (!homeStore.is_login) {
+    ElNotification.warning({
+      message: '您还未登录,请先登录！',
+      duration: DURATION_TIME
+    })
+    loginDialog.value = true
+    return
+  }
+  reservationForm.value.room = row
+  reservationForm.value.room_id = row.room_id
+  reservationDialog.value = true
+}
+const handlerReservation = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid) => {
     if (valid) {
-      if (dialogOperate.value === 'detail') {
-        alert('处理预约')
+      if (dateFlag.value) {
+        addOrder(reservationForm.value).then(({ data }) => {
+          if (data.code === 200) {
+            ElNotification.success({
+              message: '预约成功',
+              duration: DURATION_TIME
+            })
+            reservationDialog.value = false
+            return
+          }
+          ElNotification.error({
+            message: '预约失败',
+            duration: DURATION_TIME
+          })
+        })
+      } else {
+        ElMessage.warning({
+          message: '时间范围不正确，请从新选择！',
+          duration: DURATION_TIME
+        })
       }
     }
   })
@@ -243,7 +324,7 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
           </span>
         </div>
         <div>
-          <span v-show="homeStore.is_login" :style="{ marginRight: '10px' }">
+          <span v-show="homeStore.is_login" :style="{ marginRight: '20px' }">
             你好，
             <el-link :underline="false" type="success">
               {{ homeStore.login_info.customer_name }}
@@ -336,7 +417,7 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
                   <el-button
                     type="primary"
                     size="small"
-                    @click="openDialog('detail', item)"
+                    @click="openReservationDialog(item)"
                   >
                     立即预约
                   </el-button>
@@ -363,12 +444,12 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
   <!--detail dialog-->
   <el-dialog
     v-model="isDialog"
-    :title="dialogTitle"
+    title="房间详情"
     width="30%"
     destroy-on-close
     :show-close="false"
   >
-    <el-form ref="dialogFormRef" :model="dialogForm" label-width="50">
+    <el-form :model="dialogForm" label-width="50">
       <el-form-item label="名称:">
         <span>{{ dialogForm.room_name }}</span>
       </el-form-item>
@@ -409,10 +490,9 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="danger" text @click="isDialog = false">取消</el-button>
-      <el-button type="primary" @click="handlerOperate(dialogFormRef)">
-        立即预约
-      </el-button>
+      <div class="detail-footer">
+        <el-button type="danger" @click="isDialog = false">关闭</el-button>
+      </div>
     </template>
   </el-dialog>
 
@@ -459,6 +539,81 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
     </template>
   </el-dialog>
 
+  <!--reservation dialog-->
+  <el-dialog
+    v-model="reservationDialog"
+    v-loading="loginLoading"
+    title="房间预约"
+    width="35%"
+    destroy-on-close
+    :show-close="false"
+    :close-on-click-modal="false"
+  >
+    <el-form ref="reservationFormRef" :model="reservationForm" label-width="80">
+      <el-form-item label="您的姓名">
+        <span :style="{ color: '#7a8b9a', fontSize: '13px' }">
+          {{ homeStore.login_info.customer_name }}
+        </span>
+      </el-form-item>
+      <el-form-item label="您的账号">
+        <span :style="{ color: '#7a8b9a', fontSize: '13px' }">
+          {{ homeStore.login_info.customer_account }}
+        </span>
+      </el-form-item>
+      <el-form-item label="房间名称">
+        <span :style="{ color: '#7a8b9a', fontSize: '13px' }">
+          {{ reservationForm.room?.room_name }}
+        </span>
+      </el-form-item>
+      <el-form-item label="房间价格">
+        <span :style="{ color: 'red', fontSize: '13px' }">
+          ￥{{ reservationForm.room?.room_price }}
+        </span>
+      </el-form-item>
+      <el-form-item
+        label="同行人数"
+        prop="count_num"
+        :rules="{ required: true, message: '人数不能为空', trigger: 'blur' }"
+      >
+        <el-input-number
+          v-model="reservationForm.count_num"
+          :style="{ width: '30%' }"
+        />
+      </el-form-item>
+      <el-form-item label="时间范围">
+        <el-date-picker
+          v-model="dateValue"
+          type="datetimerange"
+          range-separator="到"
+          start-placeholder="入住时间"
+          end-placeholder="离开时间"
+          :default-time="[
+            new Date(2023, 1, 1, 9, 0, 0),
+            new Date(2023, 1, 2, 9, 0, 0)
+          ]"
+        />
+      </el-form-item>
+      <el-form-item label="入住天数"> {{ dateNum }}天</el-form-item>
+      <el-form-item label="备注信息">
+        <el-input
+          v-model="reservationForm.description"
+          type="textarea"
+          resize="none"
+          :rows="3"
+          placeholder="默认：无"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="danger" @click="reservationDialog = false">
+        取消
+      </el-button>
+      <el-button type="primary" @click="handlerReservation(reservationFormRef)">
+        确定
+      </el-button>
+    </template>
+  </el-dialog>
+
   <!--insert dialog-->
   <el-dialog
     v-model="insertDialog"
@@ -496,6 +651,8 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
           v-model="insertForm.customer_password"
           show-password
           placeholder="默认：123456"
+          maxlength="100"
+          minlength="6"
         />
       </el-form-item>
       <el-form-item label="备注">
@@ -532,6 +689,10 @@ $header-footer-height: 60px;
   @include default-display;
   font-size: 18px;
   color: #7a8b9a;
+}
+
+.detail-footer {
+  @include default-display;
 }
 
 .home-box {

@@ -66,10 +66,10 @@ module.exports = {
     '@typescript-eslint/ban-types': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-unused-vars': 0,
-    ' @typescript-eslint/no-unused-vars': 0,
     '@typescript-eslint/no-empty-interface': 0,
     'vue/multi-word-component-names': 0,
     'vue/require-component-is': 0,
-    'vue/no-unused-vars': 0
+    'vue/no-unused-vars': 0,
+    camelcase: 0
   }
 }

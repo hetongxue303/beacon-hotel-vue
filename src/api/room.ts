@@ -45,6 +45,13 @@ const updateRoomStatus = (data: RoomEntity) => {
     data
   })
 }
+const updateRoomState = (data: RoomEntity) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/room/update/state`,
+    data
+  })
+}
 
 export {
   getRoomPageList,
@@ -52,5 +59,6 @@ export {
   deleteRoom,
   updateRoom,
   updateRoomStatus,
-  getRoomPageHomeList
+  getRoomPageHomeList,
+  updateRoomState
 }
