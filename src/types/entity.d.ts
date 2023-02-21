@@ -72,7 +72,8 @@ interface OrderEntity extends Base {
   customer?: CustomerEntity /* 顾客信息 */
   room_id?: number /* 房间ID */
   room?: RoomEntity /* 房间信息 */
-  is_status?: string /* 入住状态：1->已预约 2->已入住 3->已退房 */
+  is_status?: boolean /* 入住状态：1->已预约 2->已入住 3->已退房 */
+  is_handler?: string
   count_num?: number
   start_date_time?: Date
   leave_date_time?: Date

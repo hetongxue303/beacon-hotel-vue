@@ -31,7 +31,7 @@ import { useHomeStore } from '../../store/modules/home'
 import { insertCustomer, customerLogin } from '../../api/customer'
 import { encryptPasswordToMD5 } from '../../hook/encrypt'
 import { DURATION_TIME } from '../../settings'
-import { addOrder } from '../../api/order'
+import { addOrder, bookingOrder } from '../../api/order'
 
 /* 初始化相关 */
 const carousels = reactive([carousel1, carousel2, carousel3, carousel4])
@@ -275,7 +275,7 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid) => {
     if (valid) {
       if (dateFlag.value) {
-        addOrder(reservationForm.value).then(({ data }) => {
+        bookingOrder(reservationForm.value).then(({ data }) => {
           if (data.code === 200) {
             ElNotification.success({
               message: '预约成功',

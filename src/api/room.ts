@@ -1,5 +1,5 @@
 import axios from '../utils/request'
-import { RoomEntity } from '../types/entity'
+import { OrderEntity, RoomEntity } from '../types/entity'
 import { QueryRoom } from '../types/query'
 
 const baseApi = import.meta.env.VITE_BASIC_API
@@ -45,7 +45,7 @@ const updateRoomStatus = (data: RoomEntity) => {
     data
   })
 }
-const updateRoomState = (data: RoomEntity) => {
+const updateRoomState = (data: OrderEntity) => {
   return axios({
     method: 'PUT',
     url: `${baseApi}/room/update/state`,

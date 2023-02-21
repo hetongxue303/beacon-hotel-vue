@@ -42,7 +42,7 @@ const getTableList = () => {
 }
 const reset = () => {
   query.order_num = undefined
-  query.is_state = undefined
+  query.is_handler = undefined
 }
 watch(
   () => multipleSelection.value,
@@ -155,15 +155,14 @@ onMounted(() => getTableList())
       </el-col>
       <el-col :span="4">
         <el-select
-          v-model="query.is_state"
+          v-model="query.is_handler"
           placeholder="状态"
           clearable
-          @clear="query.is_state = undefined"
+          @clear="query.is_handler = undefined"
         >
-          <el-option label="空闲房间" value="0" />
           <el-option label="已预约" value="1" />
           <el-option label="已入住" value="2" />
-          <el-option label="维修中" value="3" />
+          <el-option label="已退房" value="3" />
         </el-select>
       </el-col>
       <el-col :span="4">
@@ -207,27 +206,21 @@ onMounted(() => getTableList())
       <el-table-column label="状态">
         <template #default="{ row }">
           <el-tag
-            v-if="row.room.is_state === '0'"
-            type="success"
-            disable-transitions
-          >
-            空闲
-          </el-tag>
-          <el-tag
-            v-else-if="row.room.is_state === '1'"
+            v-if="row.is_handler === '1'"
             type="warning"
+            effect="dark"
             disable-transitions
           >
             已预约
           </el-tag>
           <el-tag
-            v-else-if="row.room.is_state === '2'"
-            type="info"
+            v-else-if="row.is_handler === '2'"
+            type="success"
             disable-transitions
           >
             已入住
           </el-tag>
-          <el-tag v-else type="danger" disable-transitions> 维修中</el-tag>
+          <el-tag v-else type="danger" disable-transitions> 已退房</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center">

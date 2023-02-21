@@ -18,6 +18,13 @@ const addOrder = (data: OrderEntity) => {
     data
   })
 }
+const bookingOrder = (data: OrderEntity) => {
+  return axios({
+    method: 'POST',
+    url: `${baseApi}/order/booking`,
+    data
+  })
+}
 const deleteOrder = (id: number) => {
   return axios({
     method: 'DELETE',
@@ -44,5 +51,6 @@ export {
   addOrder,
   deleteOrder,
   updateOrder,
-  updateOrderStatus
+  updateOrderStatus,
+  bookingOrder
 }

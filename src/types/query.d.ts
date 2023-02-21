@@ -25,7 +25,9 @@ interface QueryRoom extends QueryPage {
 
 interface QueryOrder extends QueryPage {
   order_num?: string
-  is_state?: string
+  is_handler?: string
+  is_status?: boolean
+  customer_id?: number
 }
 
 interface QueryCustomer extends QueryPage {
