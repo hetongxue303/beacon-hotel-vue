@@ -51,6 +51,13 @@ const updateCustomerStatus = (data: CustomerEntity) => {
     data
   })
 }
+const updateCustomerPassword = (data: CustomerEntity) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/customer/update/password`,
+    data
+  })
+}
 
 export {
   getCustomerPageList,
@@ -59,5 +66,6 @@ export {
   updateCustomer,
   updateCustomerStatus,
   customerLogin,
-  customerLogout
+  customerLogout,
+  updateCustomerPassword
 }

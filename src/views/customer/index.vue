@@ -2,13 +2,23 @@
 import moment from 'moment'
 import Pagination from '../../components/Pagination/index.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
-import { ElNotification, ElTable, FormInstance } from 'element-plus'
+import {
+  ElMessageBox,
+  ElNotification,
+  ElTable,
+  FormInstance
+} from 'element-plus'
 import { delayRequest } from '../../utils/common'
 import { clone, cloneDeep } from 'lodash'
-import { DURATION_TIME } from '../../settings'
+import { DEFAULT_PASSWORD, DURATION_TIME } from '../../settings'
 import { CustomerEntity } from '../../types/entity'
 import { QueryCustomer } from '../../types/query'
-import { getCustomerPageList } from '../../api/customer'
+import {
+  getCustomerPageList,
+  updateCustomer,
+  updateCustomerPassword
+} from '../../api/customer'
+import { encryptPasswordToMD5 } from '../../hook/encrypt'
 
 const tableData = ref<CustomerEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
@@ -52,15 +62,13 @@ const dialogForm = ref<CustomerEntity>({})
 const dialogTitle = ref<string>('')
 const dialogOperate = ref<string>('')
 const openDialog = (operate: string, row?: CustomerEntity) => {
-  if (operate === 'insert') {
-    dialogTitle.value = '新增类型'
+  if (operate === 'detail') {
+    dialogTitle.value = '顾客详情'
   } else {
-    dialogTitle.value = '编辑类型'
-    if (row) {
-      dialogForm.value = cloneDeep(row)
-    } else {
-      dialogForm.value = cloneDeep(multipleSelection.value[0] as CustomerEntity)
-    }
+    dialogTitle.value = '顾客订单'
+  }
+  if (row) {
+    dialogForm.value = cloneDeep(row)
   }
   isDialog.value = true
   dialogOperate.value = operate
@@ -140,6 +148,29 @@ watch(
   },
   { immediate: true, deep: true }
 )
+const handlerUpdatePassword = (row: CustomerEntity) => {
+  ElMessageBox.confirm(`确定重置 ${row.customer_name} 的密码吗?`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '返回',
+    type: 'warning'
+  }).then(() => {
+    row.customer_password = encryptPasswordToMD5(DEFAULT_PASSWORD)
+    updateCustomerPassword(row).then(({ data }) => {
+      if (data.code === 200) {
+        ElNotification.success({
+          message: `${row.customer_name}密码已重置！`,
+          duration: DURATION_TIME
+        })
+        isDialog.value = false
+        return
+      }
+      ElNotification.error({
+        message: `密码重置失败，请重试！`,
+        duration: DURATION_TIME
+      })
+    })
+  })
+}
 </script>
 
 <template>
@@ -192,17 +223,12 @@ watch(
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="{ row }">
-          <el-button type="primary" @click="openDialog('update', row)">
-            编辑
+          <el-button type="success" @click="openDialog('detail', row)">
+            详情
           </el-button>
-          <el-popconfirm
-            title="确定删除本条数据吗？"
-            @confirm="handlerDelete(row.room_type_id)"
-          >
-            <template #reference>
-              <el-button type="danger">删除</el-button>
-            </template>
-          </el-popconfirm>
+          <el-button type="primary" @click="openDialog('update', row)">
+            查看订单
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -224,33 +250,50 @@ watch(
     :show-close="false"
     :close-on-click-modal="false"
   >
-    <el-form ref="dialogFormRef" :model="dialogForm" label-width="80">
-      <el-form-item
-        prop="room_type_name"
-        label="客房类型"
-        :rules="{
-          required: true,
-          message: '客房类型不能为空',
-          trigger: 'blur'
-        }"
-      >
-        <el-input v-model="dialogForm.room_type_name" />
+    <el-form
+      v-if="dialogOperate === 'detail'"
+      :model="dialogForm"
+      label-width="80"
+    >
+      <el-form-item label="顾客账户">
+        <span>{{ dialogForm.customer_account }}</span>
+        <el-link
+          type="primary"
+          :underline="false"
+          class="ml-10"
+          @click="handlerUpdatePassword(dialogForm)"
+        >
+          重置密码
+        </el-link>
       </el-form-item>
-      <el-form-item prop="description" label="备注">
-        <el-input
-          v-model="dialogForm.description"
-          type="textarea"
-          :rows="3"
-          resize="none"
-          placeholder="默认：空"
-        />
+      <el-form-item label="顾客姓名:">
+        <span>{{ dialogForm.customer_name }}</span>
+      </el-form-item>
+      <el-form-item label="账号状态:">
+        <el-tag v-if="dialogForm.is_status" disable-transitions type="success">
+          正常
+        </el-tag>
+        <el-tag v-else disable-transitions type="danger"> 禁用</el-tag>
+      </el-form-item>
+      <el-form-item label="个人描述:">
+        <span>{{ dialogForm.description }}</span>
+      </el-form-item>
+      <el-form-item label="注册时间:">
+        {{ moment(dialogForm.create_time).format('YYYY-MM-DD HH:mm:ss') }}
+      </el-form-item>
+      <el-form-item label="最后登录:">
+        {{ moment(dialogForm.update_time).format('YYYY-MM-DD HH:mm:ss') }}
       </el-form-item>
     </el-form>
+    <el-form v-else></el-form>
     <template #footer>
-      <el-button type="danger" text @click="isDialog = false">返回</el-button>
-      <el-button type="primary" @click="handlerOperate(dialogFormRef)">
-        确认
-      </el-button>
+      <div
+        v-if="dialogOperate === 'detail'"
+        style="display: flex; justify-content: center"
+      >
+        <el-button type="primary" @click="isDialog = false">关闭</el-button>
+      </div>
+      <div v-else></div>
     </template>
   </el-dialog>
 </template>

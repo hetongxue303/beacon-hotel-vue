@@ -22,6 +22,7 @@ export const PRIVATE_KEY =
   'Ae6A8NQDhSnstfKXB73mQAmAkF27siUBSlg57eBLPBJ854LtOCZ1/itdbRGPm3g0\n' +
   'IPKI7Em1/0lXtTisQQ=='
 export const DURATION_TIME = 2000
+export const DEFAULT_PASSWORD = '123456'
 
 export enum settings {
   AUTHORIZATION_KEY = 'authorization',
