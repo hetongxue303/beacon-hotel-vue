@@ -11,7 +11,7 @@ import {
 import { delayRequest } from '../../utils/common'
 import { clone, cloneDeep } from 'lodash'
 import { DEFAULT_PASSWORD, DURATION_TIME } from '../../settings'
-import { CustomerEntity, OrderEntity, RoomEntity } from '../../types/entity'
+import { CustomerEntity, OrderEntity } from '../../types/entity'
 import { QueryCustomer, QueryOrder } from '../../types/query'
 import {
   getCustomerPageList,
@@ -19,19 +19,15 @@ import {
   updateCustomerStatus
 } from '../../api/customer'
 import { encryptPasswordToMD5 } from '../../hook/encrypt'
-import { getOrderPageList, updateOrder } from '../../api/order'
+import { getOrderPageList } from '../../api/order'
 import { updateRoomState } from '../../api/room'
 
 const tableData = ref<CustomerEntity[]>([])
-const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const multipleSelection = ref<CustomerEntity[]>([])
 const tableLoading = ref<boolean>(false)
 const total = ref<number>(0)
-const query: QueryCustomer = reactive({ page: 1, size: 10 })
+const query: QueryCustomer = reactive({ page: 1, size: 5 })
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
-const handleSelectionChange = (selection: CustomerEntity[]) =>
-  (multipleSelection.value = selection)
 const getTableList = () => {
   tableLoading.value = true
   delayRequest(
@@ -85,7 +81,7 @@ const handlerUpdatePassword = (row: CustomerEntity) => {
     updateCustomerPassword(row).then(({ data }) => {
       if (data.code === 200) {
         ElNotification.success({
-          message: `${row.customer_name}密码已重置！`,
+          message: `密码已重置`,
           duration: DURATION_TIME
         })
         isDialog.value = false
@@ -114,25 +110,13 @@ const handlerChangeStatus = (row: CustomerEntity) => {
     dialogForm.value.is_status = !dialogForm.value.is_status
   })
 }
-const disabled = reactive({
-  edit: true,
-  delete: true
-})
-watch(
-  () => multipleSelection.value,
-  () => {
-    disabled.edit = multipleSelection.value.length !== 1
-    disabled.delete = multipleSelection.value.length < 1
-  },
-  { immediate: true, deep: true }
-)
 
 const orderDialog = ref<boolean>(false)
 const orderTableLoading = ref<boolean>(false)
 const orderForm = ref<CustomerEntity>({})
 const orderTableData = ref<OrderEntity[]>([])
 const orderTotal = ref<number>(0)
-const orderQuery: QueryOrder = reactive({ page: 1, size: 5, is_status: true })
+const orderQuery: QueryOrder = reactive({ page: 1, size: 5 })
 const handleCurrentOrder = (page: number) => (query.page = page)
 const handleSizeOrder = (size: number) => (query.size = size)
 const activeName = ref<string>('1')
@@ -174,7 +158,6 @@ watch(
   },
   { deep: true }
 )
-const handlerOrder = (row: OrderEntity) => {}
 
 const handlerStay = (oop: string, row: OrderEntity) => {
   if (oop === '1') {
@@ -245,7 +228,7 @@ const handlerStay = (oop: string, row: OrderEntity) => {
   <el-card class="card-box">
     <el-row :gutter="12">
       <el-col :span="4">
-        <el-input v-model="query.customer_name" placeholder="顾客姓名" />
+        <el-input v-model="query.customer_name" placeholder="姓名" />
       </el-col>
       <el-col :span="4">
         <el-button type="warning" @click="query.customer_name = undefined">
@@ -253,21 +236,15 @@ const handlerStay = (oop: string, row: OrderEntity) => {
         </el-button>
       </el-col>
     </el-row>
-    <el-row :gutter="12">
-      <el-col :span="4">
-        <el-button type="success">新增</el-button>
-      </el-col>
-    </el-row>
     <el-table
-      ref="multipleTableRef"
       v-loading="tableLoading"
       :data="tableData"
       empty-text="暂无数据"
-      @selection-change="handleSelectionChange"
+      @cell-dblclick="openDialog"
     >
-      <el-table-column type="selection" width="30" align="center" />
-      <el-table-column prop="customer_name" label="顾客姓名" />
-      <el-table-column prop="customer_account" label="账户" />
+      <el-table-column prop="customer_name" label="姓名" />
+      <el-table-column prop="id_card" label="身份证号" />
+      <el-table-column prop="telephone" label="电话" />
       <el-table-column label="状态">
         <template #default="{ row }">
           <el-tag
@@ -283,14 +260,13 @@ const handlerStay = (oop: string, row: OrderEntity) => {
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center">
+      <el-table-column label="注册时间" align="center">
         <template #default="{ row }">
           {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="{ row }">
-          <el-button type="success" @click="openDialog(row)"> 详情</el-button>
           <el-button type="primary" @click="openOrderDialog(row)">
             查看订单
           </el-button>
@@ -321,7 +297,6 @@ const handlerStay = (oop: string, row: OrderEntity) => {
           v-loading="orderTableLoading"
           :data="orderTableData"
           empty-text="暂无订单"
-          @selection-change="handleSelectionChange"
         >
           <el-table-column label="姓名">
             <template #default="{ row }">
@@ -373,14 +348,13 @@ const handlerStay = (oop: string, row: OrderEntity) => {
           v-loading="orderTableLoading"
           :data="orderTableData"
           empty-text="暂无订单"
-          @selection-change="handleSelectionChange"
         >
           <el-table-column label="姓名">
             <template #default="{ row }">
               {{ row.customer.customer_name }}
             </template>
           </el-table-column>
-          <el-table-column label="房间名">
+          <el-table-column label="房间名称">
             <template #default="{ row }">
               {{ row.room.room_name }}
             </template>
@@ -446,48 +420,89 @@ const handlerStay = (oop: string, row: OrderEntity) => {
     :close-on-click-modal="false"
   >
     <el-form :model="dialogForm" label-width="80">
-      <el-form-item label="顾客账户">
-        <span>{{ dialogForm.customer_account }}</span>
-      </el-form-item>
-      <el-form-item label="顾客姓名:">
-        <span>{{ dialogForm.customer_name }}</span>
-      </el-form-item>
-      <el-form-item label="账号状态:">
-        <el-radio-group
-          v-model="dialogForm.is_status"
-          @change="handlerChangeStatus(dialogForm)"
-        >
-          <el-radio-button :label="true">正常</el-radio-button>
-          <el-radio-button :label="false">禁用</el-radio-button>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="个人描述:">
-        <span>{{ dialogForm.description }}</span>
-      </el-form-item>
-      <el-form-item label="注册时间:">
-        {{ moment(dialogForm.create_time).format('YYYY-MM-DD HH:mm:ss') }}
-      </el-form-item>
-      <el-form-item label="最后登录:">
-        {{ moment(dialogForm.update_time).format('YYYY-MM-DD HH:mm:ss') }}
-      </el-form-item>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="客户姓名">
+            <span class="customer-detail-title">
+              {{ dialogForm.customer_name }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="客户账号">
+            <span class="customer-detail-title">
+              {{ dialogForm.customer_account }}
+            </span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="账号状态">
+            <el-radio-group
+              v-model="dialogForm.is_status"
+              size="small"
+              @change="handlerChangeStatus(dialogForm)"
+            >
+              <el-radio-button :label="true">正常</el-radio-button>
+              <el-radio-button :label="false">禁用</el-radio-button>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="身份证号">
+            <span class="customer-detail-title">
+              {{ dialogForm.id_card }}
+            </span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="客户电话">
+            <span class="customer-detail-title">
+              {{ dialogForm.telephone }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="注册时间">
+            {{ moment(dialogForm.create_time).format('YYYY-MM-DD HH:mm:ss') }}
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="客户描述">
+            <span class="customer-detail-title">
+              {{ dialogForm.description }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
     </el-form>
     <template #footer>
-      <el-button type="danger" text @click="isDialog = false">
-        关闭窗口
-      </el-button>
-      <el-button type="warning" @click="handlerUpdatePassword(dialogForm)">
+      <el-button type="primary" @click="handlerUpdatePassword(dialogForm)">
         重置密码
       </el-button>
+      <el-button type="danger" @click="isDialog = false"> 关闭窗口</el-button>
     </template>
   </el-dialog>
 </template>
 
 <style scoped lang="scss">
 .card-box {
-  margin-top: 20px;
+  margin: 20px;
 }
 
 :deep(.el-row) {
   margin-bottom: 10px;
+}
+
+.customer-detail-title {
+  font-size: 12px;
+  color: #7a8b9a;
 }
 </style>

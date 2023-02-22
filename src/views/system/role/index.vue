@@ -13,13 +13,14 @@ import {
   getRolePageList,
   updateRole
 } from '../../../api/role'
+import { DURATION_TIME } from '../../../settings'
 
 const tableData = ref<RoleEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<RoleEntity[]>([])
 const tableLoading = ref<boolean>(false)
 const total = ref<number>(0)
-const query: QueryRole = reactive({ page: 1, size: 10 })
+const query: QueryRole = reactive({ page: 1, size: 5 })
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
 const handleSelectionChange = (selection: RoleEntity[]) =>
@@ -81,29 +82,41 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
         addRole(dialogForm.value).then(({ data }) => {
           switch (data.code) {
             case 200:
-              ElNotification.success({ message: '添加成功', duration: 1500 })
+              ElNotification.success({
+                message: '添加成功',
+                duration: DURATION_TIME
+              })
               isDialog.value = false
               getTableList()
               break
             case 201:
-              ElNotification.error({ message: data.message, duration: 1500 })
+              ElNotification.error({
+                message: data.message,
+                duration: DURATION_TIME
+              })
               break
             default:
               ElNotification.error({
                 message: '添加失败，请重试!',
-                duration: 1500
+                duration: DURATION_TIME
               })
           }
         })
       } else {
         updateRole(dialogForm.value).then(({ data }) => {
           if (data.code === 200) {
-            ElNotification.success({ message: '更新成功', duration: 1500 })
+            ElNotification.success({
+              message: '更新成功',
+              duration: DURATION_TIME
+            })
             isDialog.value = false
             getTableList()
             return
           }
-          ElNotification.error({ message: '更新失败，请重试!', duration: 1500 })
+          ElNotification.error({
+            message: '更新失败，请重试!',
+            duration: DURATION_TIME
+          })
         })
       }
     }
@@ -112,11 +125,14 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
 const handlerDelete = (id: number) => {
   deleteRole(id).then(async ({ data }) => {
     if (data.code === 200) {
-      ElNotification.success({ message: '删除成功', duration: 1500 })
+      ElNotification.success({ message: '删除成功', duration: DURATION_TIME })
       getTableList()
       return
     }
-    ElNotification.error({ message: '删除失败，请重试!', duration: 1500 })
+    ElNotification.error({
+      message: '删除失败，请重试!',
+      duration: DURATION_TIME
+    })
   })
 }
 watch(
@@ -159,7 +175,7 @@ const handlerPermission = () => {}
           clearable
           @clear="query.is_status = undefined"
         >
-          <el-option label="启用" :value="true" />
+          <el-option label="正常" :value="true" />
           <el-option label="禁用" :value="false" />
         </el-select>
       </el-col>
@@ -204,7 +220,7 @@ const handlerPermission = () => {}
             effect="dark"
             disable-transitions
           >
-            启用
+            正常
           </el-tag>
           <el-tag v-else type="danger" effect="dark" disable-transitions>
             禁用
@@ -271,11 +287,11 @@ const handlerPermission = () => {}
         :rules="{ required: true, message: '请选择状态', trigger: 'change' }"
       >
         <el-radio-group v-model="dialogForm.is_status">
-          <el-radio-button :label="true">启用</el-radio-button>
+          <el-radio-button :label="true">正常</el-radio-button>
           <el-radio-button :label="false">禁用</el-radio-button>
         </el-radio-group>
       </el-form-item>
-      <el-form-item prop="description" label="备注">
+      <el-form-item prop="description" label="角色备注">
         <el-input
           v-model="dialogForm.description"
           type="textarea"
@@ -313,7 +329,7 @@ const handlerPermission = () => {}
 
 <style scoped lang="scss">
 .card-box {
-  margin-top: 20px;
+  margin: 20px;
 }
 
 :deep(.el-row) {

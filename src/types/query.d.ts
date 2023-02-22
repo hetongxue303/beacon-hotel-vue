@@ -34,4 +34,14 @@ interface QueryCustomer extends QueryPage {
   customer_name?: string
 }
 
-export { QueryType, QueryUser, QueryRole, QueryRoom, QueryOrder, QueryCustomer }
+interface QueryIndex extends QueryPage {}
+
+export {
+  QueryType,
+  QueryUser,
+  QueryRole,
+  QueryRoom,
+  QueryOrder,
+  QueryCustomer,
+  QueryIndex
+}

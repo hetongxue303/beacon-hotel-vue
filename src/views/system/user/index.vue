@@ -20,7 +20,7 @@ const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<UserEntity[]>([])
 const tableLoading = ref<boolean>(false)
 const total = ref<number>(0)
-const query: QueryUser = reactive({ page: 1, size: 10 })
+const query: QueryUser = reactive({ page: 1, size: 5 })
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
 const handleSelectionChange = (selection: UserEntity[]) =>
@@ -166,7 +166,7 @@ watch(
           clearable
           @clear="query.is_status = undefined"
         >
-          <el-option label="启用" :value="true" />
+          <el-option label="正常" :value="true" />
           <el-option label="禁用" :value="false" />
         </el-select>
       </el-col>
@@ -217,7 +217,7 @@ watch(
             effect="dark"
             disable-transitions
           >
-            启用
+            正常
           </el-tag>
           <el-tag v-else type="danger" effect="dark" disable-transitions>
             禁用
@@ -302,7 +302,7 @@ watch(
         prop="is_status"
       >
         <el-radio-group v-model="dialogForm.is_status">
-          <el-radio-button :label="true">启用</el-radio-button>
+          <el-radio-button :label="true">正常</el-radio-button>
           <el-radio-button :label="false">禁用</el-radio-button>
         </el-radio-group>
       </el-form-item>
@@ -338,7 +338,7 @@ watch(
 
 <style scoped lang="scss">
 .card-box {
-  margin-top: 20px;
+  margin: 20px;
 }
 
 :deep(.el-row) {

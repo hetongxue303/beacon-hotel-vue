@@ -16,15 +16,11 @@ import { clone, cloneDeep } from 'lodash'
 import { DURATION_TIME } from '../../settings'
 
 const tableData = ref<TypeEntity[]>([])
-const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const multipleSelection = ref<TypeEntity[]>([])
 const tableLoading = ref<boolean>(false)
 const total = ref<number>(0)
-const query: QueryType = reactive({ page: 1, size: 10 })
+const query: QueryType = reactive({ page: 1, size: 5 })
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
-const handleSelectionChange = (selection: TypeEntity[]) =>
-  (multipleSelection.value = selection)
 const getTableList = () => {
   tableLoading.value = true
   delayRequest(
@@ -63,8 +59,6 @@ const openDialog = (operate: string, row?: TypeEntity) => {
     dialogTitle.value = '编辑类型'
     if (row) {
       dialogForm.value = cloneDeep(row)
-    } else {
-      dialogForm.value = cloneDeep(multipleSelection.value[0] as TypeEntity)
     }
   }
   isDialog.value = true
@@ -132,19 +126,6 @@ watch(
   },
   { deep: true }
 )
-
-const disabled = reactive({
-  edit: true,
-  delete: true
-})
-watch(
-  () => multipleSelection.value,
-  () => {
-    disabled.edit = multipleSelection.value.length !== 1
-    disabled.delete = multipleSelection.value.length < 1
-  },
-  { immediate: true, deep: true }
-)
 </script>
 
 <template>
@@ -157,21 +138,10 @@ watch(
         <el-button type="warning" @click="query.room_type_name = undefined">
           重置
         </el-button>
-      </el-col>
-    </el-row>
-    <el-row :gutter="12">
-      <el-col :span="4">
         <el-button type="success" @click="openDialog('insert')">新增</el-button>
       </el-col>
     </el-row>
-    <el-table
-      ref="multipleTableRef"
-      v-loading="tableLoading"
-      :data="tableData"
-      empty-text="暂无数据"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="30" align="center" />
+    <el-table v-loading="tableLoading" :data="tableData" empty-text="暂无数据">
       <el-table-column prop="room_type_name" label="客房类型" />
       <el-table-column prop="description" label="备注" />
       <el-table-column label="创建时间" align="center">
@@ -246,7 +216,7 @@ watch(
 
 <style scoped lang="scss">
 .card-box {
-  margin-top: 20px;
+  margin: 20px;
 }
 
 :deep(.el-row) {

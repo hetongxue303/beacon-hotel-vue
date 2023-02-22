@@ -25,7 +25,7 @@ export const menus: Array<any> = [
     path: '/reservation'
   },
   {
-    name: '顾客管理',
+    name: '客户管理',
     icon: 'index',
     path: '/customer'
   },

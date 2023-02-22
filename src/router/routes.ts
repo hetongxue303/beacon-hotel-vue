@@ -101,7 +101,7 @@ export const routes: RouteRecordRaw[] = [
         name: 'customer',
         path: '/customer',
         meta: {
-          title: '顾客管理',
+          title: '客户管理',
           cache: false
         },
         component: () => import('@views/customer/index.vue')
@@ -152,14 +152,5 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@views/about/index.vue')
       }
     ]
-  },
-  {
-    name: 'hotel-list',
-    path: '/home/hotel-list',
-    meta: {
-      title: '酒店列表',
-      cache: false
-    },
-    component: () => import('@views/home/hotel-list.vue')
   }
 ]

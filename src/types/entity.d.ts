@@ -56,6 +56,8 @@ interface CustomerEntity extends Base {
   customer_name?: string
   customer_account?: string
   customer_password?: string
+  id_card?: string
+  telephone?: string
   is_status?: boolean
   description?: string
 }
@@ -80,6 +82,14 @@ interface OrderEntity extends Base {
   description?: string
 }
 
+interface IndexDto {
+  rooms?: RoomEntity[]
+  free_time?: number
+  booking?: number
+  stay?: number
+  maintenance?: number
+}
+
 export {
   TypeEntity,
   UserEntity,
@@ -88,5 +98,6 @@ export {
   RoomEntity,
   OrderEntity,
   CustomerLoginDto,
-  CustomerEntity
+  CustomerEntity,
+  IndexDto
 }

@@ -42,7 +42,7 @@ const props = withDefaults(
     disabled: false,
     background: true,
     layout: 'total, sizes, prev, pager, next, jumper',
-    pageSizes: () => [10, 20, 30, 50, 100],
+    pageSizes: () => [5, 10, 15, 20, 50],
     prevText: '',
     nextText: '',
     hideOnSinglePage: false

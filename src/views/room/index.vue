@@ -20,6 +20,7 @@ import {
 } from '../../api/room'
 import { getRoomTypeList } from '../../api/room_type'
 import { DURATION_TIME } from '../../settings'
+import moment from 'moment'
 
 const tableData = ref<RoomEntity[]>([])
 const roomTypeList = ref<TypeEntity[]>([])
@@ -28,7 +29,7 @@ const multipleSelection = ref<RoomEntity[]>([])
 const tableLoading = ref<boolean>(false)
 const switchLoading = ref<boolean>(false)
 const total = ref<number>(0)
-const query: QueryRoom = reactive({ page: 1, size: 10 })
+const query: QueryRoom = reactive({ page: 1, size: 5 })
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
 const handleSelectionChange = (selection: RoomEntity[]) =>
@@ -41,7 +42,7 @@ const reset = () => {
 const handlerSwitchChange = (room: RoomEntity) => {
   switchLoading.value = true
   ElMessageBox.confirm(
-    `确定要${room.is_status ? '激活' : '禁用'} ${room.room_name} 吗?`,
+    `确定要${room.is_status ? '启用' : '禁用'} ${room.room_name} 吗?`,
     '提示',
     {
       confirmButtonText: '确定',
@@ -53,12 +54,15 @@ const handlerSwitchChange = (room: RoomEntity) => {
       const { data } = await updateRoomStatus(room)
       if (data.code === 200) {
         ElNotification.success({
-          message: room.is_status ? '已激活' : '已禁用',
+          message: room.is_status ? '已启用' : '已禁用',
           duration: 1500
         })
         return
       }
-      ElNotification.error({ message: '切换失败，请重试', duration: 1500 })
+      ElNotification.error({
+        message: '切换失败，请重试',
+        duration: DURATION_TIME
+      })
     })
     .catch(() => (room.is_status = !room.is_status))
     .finally(() => (switchLoading.value = false))
@@ -131,7 +135,10 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
       if (drawerOperate.value === 'insert') {
         addRoom(drawerForm.value).then(({ data }) => {
           if (data.code === 200) {
-            ElNotification.success({ message: '添加成功', duration: 1500 })
+            ElNotification.success({
+              message: '添加成功',
+              duration: DURATION_TIME
+            })
             isDrawer.value = false
             getTableList()
             return
@@ -144,12 +151,18 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
       } else {
         updateRoom(drawerForm.value).then(({ data }) => {
           if (data.code === 200) {
-            ElNotification.success({ message: '更新成功', duration: 1500 })
+            ElNotification.success({
+              message: '更新成功',
+              duration: DURATION_TIME
+            })
             isDrawer.value = false
             getTableList()
             return
           }
-          ElNotification.error({ message: '更新失败，请重试!', duration: 1500 })
+          ElNotification.error({
+            message: '更新失败，请重试!',
+            duration: DURATION_TIME
+          })
         })
       }
     }
@@ -158,11 +171,14 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
 const handlerDelete = (id: number) => {
   deleteRoom(id).then(async ({ data }) => {
     if (data.code === 200) {
-      ElNotification.success({ message: '删除成功', duration: 1500 })
+      ElNotification.success({ message: '删除成功', duration: DURATION_TIME })
       getTableList()
       return
     }
-    ElNotification.error({ message: '删除失败，请重试!', duration: 1500 })
+    ElNotification.error({
+      message: '删除失败，请重试!',
+      duration: DURATION_TIME
+    })
   })
 }
 watch(
@@ -183,9 +199,96 @@ watch(
   },
   { immediate: true, deep: true }
 )
+
+const detailDialog = ref<boolean>(false)
+const detailRoomForm = ref<RoomEntity>({})
+const handlerDblclick = (row: RoomEntity) => {
+  detailRoomForm.value = cloneDeep(row)
+  detailDialog.value = true
+}
 </script>
 
 <template>
+  <el-dialog
+    v-model="detailDialog"
+    title="客房详情"
+    width="40%"
+    destroy-on-close
+    :close-on-click-modal="false"
+    :show-close="false"
+  >
+    <el-form>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="客房名称">
+            <span class="detail-title">
+              {{ detailRoomForm.room_name }}
+            </span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="客房状态">
+            <el-tag v-if="detailRoomForm.is_status" type="success">
+              正常
+            </el-tag>
+            <el-tag v-else type="danger"> 禁用</el-tag>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="客房类型">
+            <span class="detail-title">
+              {{ detailRoomForm.type?.room_type_name }}
+            </span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="客房价格">
+            <span class="detail-title" style="color: red">
+              ￥{{ detailRoomForm.room_price }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="客房人数">
+            <span class="detail-title">
+              {{ detailRoomForm.room_count }}人
+            </span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="客房床位">
+            <span class="detail-title"> {{ detailRoomForm.room_bed }}个 </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="房间介绍">
+            <span class="detail-title">
+              {{ detailRoomForm.room_detail }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="创建时间">
+            <span class="detail-title">
+              {{ detailRoomForm.create_time }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <template #footer>
+      <el-button type="danger" @click="detailDialog = false"> 关闭</el-button>
+    </template>
+  </el-dialog>
+
   <el-card class="card-box">
     <el-row :gutter="12">
       <el-col :span="4">
@@ -221,7 +324,7 @@ watch(
         <el-button type="warning" @click="reset">重置</el-button>
       </el-col>
     </el-row>
-    <el-row :gutter="12">
+    <el-row :gutter="12" style="margin-left: 5px">
       <el-button type="success" @click="openDrawer('insert')">新增</el-button>
       <el-button
         type="danger"
@@ -248,11 +351,17 @@ watch(
       v-loading="tableLoading"
       :data="tableData"
       empty-text="暂无数据"
+      @cell-dblclick="handlerDblclick"
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="30" align="center" />
-      <el-table-column prop="room_name" label="客房名称" />
+      <el-table-column prop="room_name" label="客房名称" width="150" />
       <el-table-column prop="type.room_type_name" label="类型" />
+      <el-table-column label="价格">
+        <template #default="{ row }">
+          <span style="color: red"> ￥{{ row.room_price }} </span>
+        </template>
+      </el-table-column>
       <el-table-column label="床位">
         <template #default="{ row }"> {{ row.room_bed }}个</template>
       </el-table-column>
@@ -272,8 +381,12 @@ watch(
           />
         </template>
       </el-table-column>
-      <el-table-column prop="room_detail" label="房间详情" />
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column label="创建时间" width="180">
+        <template #default="{ row }">
+          {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="180">
         <template #default="{ row }">
           <el-button type="primary" @click="openDrawer('update', row)">
             编辑
@@ -420,10 +533,15 @@ watch(
 
 <style scoped lang="scss">
 .card-box {
-  margin-top: 20px;
+  margin: 20px;
 }
 
 :deep(.el-row) {
   margin-bottom: 10px;
+}
+
+.detail-title {
+  font-size: 12px;
+  color: #7a8b9a;
 }
 </style>

@@ -49,7 +49,7 @@ const appStore = useAppStore()
 :deep(.el-main) {
   height: 100%;
   width: 100%;
-  padding-top: 0;
+  padding: 0;
 }
 
 :deep(.el-footer) {

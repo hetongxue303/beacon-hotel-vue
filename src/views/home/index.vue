@@ -31,7 +31,7 @@ import { useHomeStore } from '../../store/modules/home'
 import { insertCustomer, customerLogin } from '../../api/customer'
 import { encryptPasswordToMD5 } from '../../hook/encrypt'
 import { DURATION_TIME } from '../../settings'
-import { addOrder, bookingOrder } from '../../api/order'
+import { bookingOrder } from '../../api/order'
 
 /* 初始化相关 */
 const carousels = reactive([carousel1, carousel2, carousel3, carousel4])
@@ -47,15 +47,15 @@ const images = reactive([
 ])
 const interval = ref<number>(4000)
 const listData = ref<RoomEntity[]>([])
-const query: QueryRoom = reactive({ page: 1, size: 10 })
+const query: QueryRoom = reactive({ page: 1, size: 5 })
 const total = ref<number>(1000)
 const listLoading = ref<boolean>(false)
 const roomTypeList = ref<TypeEntity[]>([])
 const handleCurrent = (page: number) => (query.page = page)
 const handleSize = (size: number) => (query.size = size)
-const randomImage = (data: any[]) => {
-  return data[randomNumber(1, data.length) as number]
-}
+const randomImage = (data: any[]) =>
+  data[randomNumber(1, data.length) as number]
+
 const getRoomList = () => {
   listLoading.value = true
   delayRequest(
@@ -415,11 +415,20 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
                 </div>
                 <div class="room-detail-button">
                   <el-button
+                    v-if="item.is_state === '0'"
                     type="primary"
                     size="small"
                     @click="openReservationDialog(item)"
                   >
                     立即预约
+                  </el-button>
+                  <el-button
+                    v-if="item.is_state === '1'"
+                    type="warning"
+                    size="small"
+                    disabled
+                  >
+                    已预约
                   </el-button>
                 </div>
               </div>
@@ -627,7 +636,7 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
       ref="insertFormRef"
       v-loading="insertLoading"
       :model="insertForm"
-      label-width="50"
+      label-width="80"
     >
       <el-form-item
         label="姓名"
@@ -637,14 +646,37 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
         <el-input v-model="insertForm.customer_name" placeholder="您的姓名" />
       </el-form-item>
       <el-form-item
-        label="账号"
+        label="用户名"
         prop="customer_account"
         :rules="{ required: true, message: '账号不能为空', trigger: 'blur' }"
       >
-        <el-input
-          v-model="insertForm.customer_account"
-          placeholder="用户名/手机/身份证号"
-        />
+        <el-input v-model="insertForm.customer_account" placeholder="账号" />
+      </el-form-item>
+      <el-form-item
+        label="身份证号"
+        prop="id_card"
+        :rules="{
+          required: true,
+          message: '身份证号有误',
+          trigger: 'blur',
+          max: 18,
+          min: 18
+        }"
+      >
+        <el-input v-model="insertForm.id_card" placeholder="身份证号" />
+      </el-form-item>
+      <el-form-item
+        label="您的电话"
+        prop="telephone"
+        :rules="{
+          required: true,
+          message: '手机电话有误',
+          trigger: 'blur',
+          max: 11,
+          min: 6
+        }"
+      >
+        <el-input v-model="insertForm.telephone" placeholder="手机电话" />
       </el-form-item>
       <el-form-item label="密码">
         <el-input
