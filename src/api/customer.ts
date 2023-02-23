@@ -11,6 +11,13 @@ const getCustomerPageList = (params: QueryCustomer) => {
     params
   })
 }
+const getCustomerByAccount = (customer_account: string) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/customer/customer_account`,
+    params: { customer_account }
+  })
+}
 const insertCustomer = (data: CustomerEntity) => {
   return axios({
     method: 'POST',
@@ -51,7 +58,12 @@ const updateCustomerStatus = (data: CustomerEntity) => {
     data
   })
 }
-const updateCustomerPassword = (data: CustomerEntity) => {
+interface update_pw {
+  account?: string
+  old_pw?: string
+  new_pw?: string
+}
+const updateCustomerPassword = (data: update_pw) => {
   return axios({
     method: 'PUT',
     url: `${baseApi}/customer/update/password`,
@@ -67,5 +79,6 @@ export {
   updateCustomerStatus,
   customerLogin,
   customerLogout,
-  updateCustomerPassword
+  updateCustomerPassword,
+  getCustomerByAccount
 }

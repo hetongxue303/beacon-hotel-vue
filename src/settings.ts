@@ -23,6 +23,7 @@ export const PRIVATE_KEY =
   'IPKI7Em1/0lXtTisQQ=='
 export const DURATION_TIME = 2000
 export const DEFAULT_PASSWORD = '123456'
+export const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 export enum settings {
   AUTHORIZATION_KEY = 'authorization',

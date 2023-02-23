@@ -14,22 +14,26 @@ export const useHomeStore = defineStore('home', {
   },
   getters: {},
   actions: {
-    logout() {
+    logout(state?: string) {
       customerLogout()
         .then(({ data }) => {
           if (data.code === 200) {
-            ElMessage.success({
-              message: '注销成功',
-              duration: DURATION_TIME
-            })
+            if (!state) {
+              ElMessage.success({
+                message: '注销成功',
+                duration: DURATION_TIME
+              })
+            }
             this.$reset()
           }
         })
         .catch(() => {
-          ElMessage.error({
-            message: '注销失败',
-            duration: DURATION_TIME
-          })
+          if (!state) {
+            ElMessage.error({
+              message: '注销失败',
+              duration: DURATION_TIME
+            })
+          }
         })
     }
   },

@@ -28,10 +28,17 @@ import { getRoomTypeList } from '../../api/room_type'
 import { QueryRoom } from '../../types/query'
 import { ElMessage, ElNotification, FormInstance } from 'element-plus'
 import { useHomeStore } from '../../store/modules/home'
-import { insertCustomer, customerLogin } from '../../api/customer'
+import {
+  insertCustomer,
+  customerLogin,
+  updateCustomer,
+  getCustomerByAccount,
+  updateCustomerPassword
+} from '../../api/customer'
 import { encryptPasswordToMD5 } from '../../hook/encrypt'
-import { DURATION_TIME } from '../../settings'
+import { DATE_TIME_FORMAT, DURATION_TIME } from '../../settings'
 import { bookingOrder } from '../../api/order'
+import moment from 'moment'
 
 /* 初始化相关 */
 const carousels = reactive([carousel1, carousel2, carousel3, carousel4])
@@ -203,6 +210,14 @@ const handlerLogin = async (formEl: FormInstance | undefined) => {
 const isDialog = ref<boolean>(false)
 const dialogForm = ref<RoomEntity>({})
 const openDialog = (operate: string, row?: RoomEntity) => {
+  if (row && row.is_state === '1') {
+    ElMessage.warning({ message: '已有人预约', duration: DURATION_TIME })
+    return
+  }
+  if (row && row.is_state === '2') {
+    ElMessage.info({ message: '已有人入住', duration: DURATION_TIME })
+    return
+  }
   if (operate === 'detail' && row) dialogForm.value = cloneDeep(row)
   isDialog.value = true
 }
@@ -282,6 +297,7 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
               duration: DURATION_TIME
             })
             reservationDialog.value = false
+            getRoomList()
             return
           }
           ElNotification.error({
@@ -298,9 +314,321 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
     }
   })
 }
+
+const userDetailDialog = ref<boolean>(false)
+const loginInfoForm = ref<CustomerEntity>({})
+const isButton = ref<boolean>(false)
+const userDetailRef = ref<FormInstance>()
+const openUserDetail = () => {
+  loginInfoForm.value = cloneDeep(homeStore.login_info)
+  userDetailDialog.value = true
+}
+watch(
+  () => userDetailDialog.value,
+  (value) => {
+    if (!value) {
+      loginInfoForm.value = {}
+      isButton.value = false
+    }
+  },
+  { deep: true }
+)
+const handlerUpdateUserDetail = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      const temp: CustomerEntity = cloneDeep(loginInfoForm.value)
+      updateCustomer(temp).then(({ data }) => {
+        if (data.code === 200) {
+          ElNotification.success({
+            message: '修改成功',
+            duration: DURATION_TIME
+          })
+          getCustomerByAccount(temp.customer_account as string)
+            .then(({ data }) => {
+              if (data.code === 200) homeStore.login_info = data.data
+            })
+            .finally(() => (loginInfoForm.value = homeStore.login_info))
+
+          isButton.value = false
+          return
+        }
+        ElNotification.error({
+          message: '修改失败，请重试！',
+          duration: DURATION_TIME
+        })
+      })
+    }
+  })
+}
+const passwordDialog = ref<boolean>(false)
+const updatePwRef = ref<FormInstance>()
+const openPasswordDialog = () => {
+  passwordDialog.value = true
+}
+
+interface update_pw {
+  account?: string
+  old_pw?: string
+  new_pw?: string
+  confirm_pw?: string
+}
+
+const updatePwForm = ref<update_pw>({})
+const handlerUpdatePassword = async (formEl?: FormInstance) => {
+  if (!formEl) return
+  await formEl.validate((valid) => {
+    if (valid) {
+      const temp: update_pw = cloneDeep(updatePwForm.value)
+      if (temp.new_pw !== temp.confirm_pw) {
+        ElMessage.warning({ message: '密码不一致', duration: DURATION_TIME })
+        return
+      }
+      temp.account = homeStore.login_info.customer_account
+      temp.new_pw = encryptPasswordToMD5(temp.new_pw as string)
+      temp.old_pw = encryptPasswordToMD5(temp.old_pw as string)
+      temp.confirm_pw = undefined
+      updateCustomerPassword(temp).then(({ data }) => {
+        if (data.code === 200) {
+          ElNotification.success({
+            message: '修改成功，请重新登录',
+            duration: DURATION_TIME
+          })
+          passwordDialog.value = false
+          homeStore.logout('1')
+          return
+        }
+        ElNotification.error({
+          message: data.message ? data.message : '修改失败，请重试！',
+          duration: DURATION_TIME
+        })
+      })
+    }
+  })
+}
 </script>
 
 <template>
+  <el-dialog
+    v-model="passwordDialog"
+    width="30%"
+    title="修改密码"
+    destroy-on-close
+    :show-close="false"
+    :close-on-click-modal="false"
+  >
+    <el-form ref="updatePwRef" :model="updatePwForm" label-width="80">
+      <el-form-item
+        prop="old_pw"
+        label="原密码"
+        :rules="{
+          required: true,
+          message: '原密码不能为空',
+          trigger: 'blur'
+        }"
+      >
+        <el-input
+          v-model="updatePwForm.old_pw"
+          show-password
+          placeholder="旧密码"
+        />
+      </el-form-item>
+      <el-form-item
+        label="新密码"
+        prop="new_pw"
+        :rules="{
+          required: true,
+          message: '新密码不能为空',
+          trigger: 'blur'
+        }"
+      >
+        <el-input
+          v-model="updatePwForm.new_pw"
+          show-password
+          placeholder="新密码"
+        />
+      </el-form-item>
+      <el-form-item
+        label="确认密码"
+        prop="confirm_pw"
+        :rules="{
+          required: true,
+          message: '密码不能为空',
+          trigger: 'blur'
+        }"
+      >
+        <el-input
+          v-model="updatePwForm.confirm_pw"
+          show-password
+          placeholder="确认密码"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="danger" text @click="passwordDialog = false">
+        返回
+      </el-button>
+      <el-button type="primary" @click="handlerUpdatePassword(updatePwRef)">
+        确认
+      </el-button>
+    </template>
+  </el-dialog>
+  <el-dialog
+    v-model="userDetailDialog"
+    title="个人信息"
+    width="30%"
+    :show-close="false"
+    :close-on-click-modal="false"
+    destroy-on-close
+  >
+    <el-form ref="userDetailRef" :model="loginInfoForm" label-width="80">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="登录账号">
+            <span style="font-size: 13px; color: #7a8b9a">
+              {{ loginInfoForm.customer_account }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="账号状态">
+            <el-tag
+              size="small"
+              :type="loginInfoForm.is_status ? 'success' : 'warning'"
+            >
+              {{ loginInfoForm.is_status ? '正常' : '禁用' }}
+            </el-tag>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item v-if="!isButton" label="您的姓名">
+            <span style="font-size: 13px; color: #7a8b9a">
+              {{ loginInfoForm.customer_name }}
+            </span>
+          </el-form-item>
+          <el-form-item
+            v-else
+            prop="customer_name"
+            label="您的姓名"
+            :rules="{
+              required: true,
+              message: '姓名不能为空',
+              trigger: 'blur'
+            }"
+          >
+            <el-input
+              v-model="loginInfoForm.customer_name"
+              placeholder="姓名"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item v-if="!isButton" label="身份证号">
+            <span style="font-size: 13px; color: #7a8b9a">
+              {{ loginInfoForm.id_card }}
+            </span>
+          </el-form-item>
+          <el-form-item
+            v-else
+            prop="id_card"
+            label="身份证号"
+            :rules="{
+              required: true,
+              message: '身份证号不正确',
+              trigger: 'blur',
+              len: 18
+            }"
+          >
+            <el-input v-model="loginInfoForm.id_card" placeholder="身份证号" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item v-if="!isButton" label="手机电话">
+            <span style="font-size: 13px; color: #7a8b9a">
+              {{ loginInfoForm.telephone }}
+            </span>
+          </el-form-item>
+          <el-form-item
+            v-else
+            prop="telephone"
+            label="手机电话"
+            :rules="{
+              required: true,
+              message: '电话不正确',
+              trigger: 'blur',
+              min: 6,
+              max: 11
+            }"
+          >
+            <el-input v-model="loginInfoForm.telephone" placeholder="电话" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item v-if="!isButton" label="个人介绍">
+            <span style="font-size: 13px; color: #7a8b9a">{{
+              loginInfoForm.description
+            }}</span>
+          </el-form-item>
+          <el-form-item v-else label="个人介绍">
+            <el-input
+              v-model="loginInfoForm.description"
+              placeholder="个人介绍"
+              type="textarea"
+              resize="none"
+              :rows="3"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="注册时间">
+            <span style="font-size: 13px; color: #7a8b9a">
+              {{ moment(loginInfoForm.create_time).format(DATE_TIME_FORMAT) }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="最后登录">
+            <span style="font-size: 13px; color: #7a8b9a">
+              {{ moment(loginInfoForm.update_time).format(DATE_TIME_FORMAT) }}
+            </span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <template #footer>
+      <el-button
+        type="danger"
+        text
+        @click="!isButton ? (userDetailDialog = false) : (isButton = !isButton)"
+      >
+        {{ !isButton ? '返回' : '上一页' }}
+      </el-button>
+      <el-button v-if="!isButton" type="primary" @click="isButton = true">
+        修改
+      </el-button>
+      <el-button
+        v-else
+        type="success"
+        @click="handlerUpdateUserDetail(userDetailRef)"
+      >
+        确认
+      </el-button>
+    </template>
+  </el-dialog>
   <div class="home-box">
     <el-affix>
       <div class="header">
@@ -326,7 +654,7 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
         <div>
           <span v-show="homeStore.is_login" :style="{ marginRight: '20px' }">
             你好，
-            <el-link :underline="false" type="success">
+            <el-link :underline="false" type="success" @click="openUserDetail">
               {{ homeStore.login_info.customer_name }}
             </el-link>
           </span>
@@ -337,7 +665,18 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
           >
             登录
           </el-button>
-          <el-button v-else type="primary" @click="homeStore.logout">
+          <el-button
+            v-if="homeStore.is_login"
+            type="primary"
+            @click="openPasswordDialog"
+          >
+            修改密码
+          </el-button>
+          <el-button
+            v-if="homeStore.is_login"
+            type="primary"
+            @click="homeStore.logout"
+          >
             退出
           </el-button>
           <el-button
@@ -428,7 +767,15 @@ const handlerReservation = async (formEl: FormInstance | undefined) => {
                     size="small"
                     disabled
                   >
-                    已预约
+                    已有人预约
+                  </el-button>
+                  <el-button
+                    v-if="item.is_state === '2'"
+                    type="info"
+                    size="small"
+                    disabled
+                  >
+                    已有人入住
                   </el-button>
                 </div>
               </div>
@@ -804,5 +1151,8 @@ $header-footer-height: 60px;
   width: 100%;
   background-color: #f3f3f3;
   @include default-display;
+}
+:deep(.el-menu-item.is-active) {
+  background-color: rgb(236, 244, 254);
 }
 </style>
