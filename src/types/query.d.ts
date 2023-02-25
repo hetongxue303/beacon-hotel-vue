@@ -36,6 +36,10 @@ interface QueryCustomer extends QueryPage {
 
 interface QueryIndex extends QueryPage {}
 
+interface QueryMenu extends QueryPage {}
+
+interface QueryMenuTree {}
+
 export {
   QueryType,
   QueryUser,
@@ -43,5 +47,7 @@ export {
   QueryRoom,
   QueryOrder,
   QueryCustomer,
-  QueryIndex
+  QueryIndex,
+  QueryMenu,
+  QueryMenuTree
 }

@@ -25,7 +25,7 @@ const props = defineProps({
   size: { type: Number as PropType<number>, default: 1.2 },
   fill: { type: String as PropType<string>, default: 'currentColor' },
   ml: { type: Number as PropType<number>, default: 0 },
-  mr: { type: Number as PropType<number>, default: 10 },
+  mr: { type: Number as PropType<number>, default: 0 },
   unit: { type: String as PropType<string>, default: 'em' }
 })
 

@@ -1,3 +1,5 @@
+import { Str } from 'windicss/types/lang/tokens'
+
 interface Base {
   create_time?: Date
   update_time?: Date
@@ -28,13 +30,24 @@ interface RoleEntity extends Base {
 
 interface MenuEntity extends Base {
   menu_id?: number
-  menu_name?: string
+  parent_id?: number
+  menu_title?: string
   menu_type?: string
-  icon?: string
   router_name?: string
   router_path?: string
-  permission?: string
+  component?: string
   sort?: number
+  icon?: string
+  permission?: string
+  is_show?: boolean
+  is_sub?: boolean
+  is_status?: boolean
+  is_delete?: boolean
+  description?: string
+}
+
+interface MenuTreeDto extends MenuEntity {
+  children?: MenuTreeDto[]
 }
 
 interface RoomEntity extends Base {
@@ -95,6 +108,7 @@ export {
   UserEntity,
   RoleEntity,
   MenuEntity,
+  MenuTreeDto,
   RoomEntity,
   OrderEntity,
   CustomerLoginDto,
