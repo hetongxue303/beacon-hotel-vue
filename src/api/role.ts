@@ -1,6 +1,6 @@
 import axios from '../utils/request'
 import { QueryRole } from '../types/query'
-import { RoleEntity } from '../types/entity'
+import { MenuInfoDto, RoleEntity } from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
@@ -11,7 +11,7 @@ const getRolePageList = (params: QueryRole) => {
     params
   })
 }
-const addRole = (data: RoleEntity) => {
+const addRole = (data: MenuInfoDto) => {
   return axios({
     method: 'POST',
     url: `${baseApi}/role/add`,
@@ -24,6 +24,13 @@ const deleteRole = (id: number) => {
     url: `${baseApi}/role/delete/${id}`
   })
 }
+const deleteBatchRole = (data: number[]) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/role/delete/batch`,
+    data
+  })
+}
 const updateRole = (data: RoleEntity) => {
   return axios({
     method: 'PUT',
@@ -31,5 +38,19 @@ const updateRole = (data: RoleEntity) => {
     data
   })
 }
+const updateRoleInfo = (data: MenuInfoDto) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/role/update/info`,
+    data
+  })
+}
 
-export { getRolePageList, addRole, deleteRole, updateRole }
+export {
+  getRolePageList,
+  addRole,
+  deleteRole,
+  updateRole,
+  updateRoleInfo,
+  deleteBatchRole
+}

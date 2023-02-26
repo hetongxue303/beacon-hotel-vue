@@ -40,7 +40,7 @@ axios.interceptors.response.use(
     } else if (message === 'Request failed with status code 403') {
       message = '没有权限'
     } else {
-      message = error.response.data.message
+      message = '未知错误'
     }
     ElNotification.error(message)
     return Promise.reject(error)

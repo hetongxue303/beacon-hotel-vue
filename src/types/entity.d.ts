@@ -46,6 +46,11 @@ interface MenuEntity extends Base {
   description?: string
 }
 
+interface MenuInfoDto {
+  role?: MenuEntity
+  menu_ids?: number[]
+}
+
 interface MenuTreeDto extends MenuEntity {
   children?: MenuTreeDto[]
 }
@@ -113,5 +118,6 @@ export {
   OrderEntity,
   CustomerLoginDto,
   CustomerEntity,
+  MenuInfoDto,
   IndexDto
 }

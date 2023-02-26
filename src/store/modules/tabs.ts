@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { TabsType } from '../../types/pinia'
 
 export const useSettingStore = defineStore('tabs', {
   state: (): TabsType => {

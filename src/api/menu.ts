@@ -1,6 +1,6 @@
 import axios from '../utils/request'
 import { QueryMenu, QueryMenuTree } from '../types/query'
-import { MenuEntity } from '../types/entity'
+import { MenuEntity, MenuInfoDto } from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
@@ -17,11 +17,17 @@ const getMenuPageList = (params: QueryMenu) => {
     params
   })
 }
-const getMenuTreeList = (params: QueryMenuTree) => {
+const getMenuTreeList = (params?: QueryMenuTree) => {
   return axios({
     method: 'GET',
     url: `${baseApi}/menu/tree`,
     params
+  })
+}
+const getMyMenuList = (role_id: number) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/menu/by_role_id/${role_id}`
   })
 }
 const addMenu = (data: MenuEntity) => {
@@ -63,6 +69,7 @@ export {
   deleteMenu,
   updateMenu,
   updateMenuStatus,
+  getMyMenuList,
   updateMenuShow,
   getMenuList,
   getMenuTreeList,

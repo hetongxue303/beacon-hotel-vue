@@ -2,19 +2,34 @@
 import moment from 'moment'
 import Pagination from '../../../components/Pagination/index.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
-import { ElNotification, ElTable, FormInstance } from 'element-plus'
+import {
+  ElMessageBox,
+  ElNotification,
+  ElTable,
+  ElTree,
+  FormInstance
+} from 'element-plus'
 import { delayRequest } from '../../../utils/common'
 import { clone, cloneDeep } from 'lodash'
-import { RoleEntity } from '../../../types/entity'
+import { MenuEntity, MenuInfoDto, RoleEntity } from '../../../types/entity'
 import { QueryRole } from '../../../types/query'
 import {
   addRole,
+  deleteBatchRole,
   deleteRole,
   getRolePageList,
-  updateRole
+  updateRoleInfo
 } from '../../../api/role'
-import { DURATION_TIME } from '../../../settings'
+import { DATE_TIME_FORMAT, DURATION_TIME } from '../../../settings'
+import { getMenuList, getMenuTreeList, getMyMenuList } from '../../../api/menu'
+import { filterMenuKey, filterMenuTree, Tree } from '../../../filter/menu'
 
+const notifySuccess = (message = '操作成功', duration = DURATION_TIME) =>
+  ElNotification.success({ message, duration })
+const notifyError = (message = '操作失败', duration = DURATION_TIME) =>
+  ElNotification.error({ message, duration })
+const notifyWarning = (message = '发生警告', duration = DURATION_TIME) =>
+  ElNotification.warning({ message, duration })
 const tableData = ref<RoleEntity[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<RoleEntity[]>([])
@@ -46,6 +61,34 @@ const getTableList = () => {
     500
   )
 }
+
+const menuTree = ref<Tree[]>([])
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const roleMenu = ref<MenuEntity[]>([])
+const menuAll = ref<MenuEntity[]>([])
+const roleCheckedMenuKeys = ref<number[]>([])
+
+const getMenuTree = () => {
+  getMenuTreeList().then(
+    ({ data }) =>
+      (menuTree.value = data.code === 200 ? filterMenuTree(data.data, 0) : [])
+  )
+}
+const getMyMenuTree = (role_id: number) => {
+  roleMenu.value = []
+  roleCheckedMenuKeys.value = []
+  getMyMenuList(role_id).then(({ data }) => {
+    if (data.code === 200) {
+      roleMenu.value = cloneDeep(data.data)
+      roleCheckedMenuKeys.value = filterMenuKey(roleMenu.value)
+    }
+  })
+}
+const getMenuListAll = () => {
+  getMenuList().then(({ data }) => {
+    menuAll.value = data.code === 200 ? cloneDeep(data.data) : []
+  })
+}
 watch(
   () => query,
   () => {
@@ -53,18 +96,30 @@ watch(
   },
   { deep: true }
 )
-onMounted(() => getTableList())
+onMounted(() => {
+  getTableList()
+  getMenuTree()
+  getMenuListAll()
+})
 
 const isDialog = ref<boolean>(false)
 const dialogFormRef = ref<FormInstance>()
 const dialogForm = ref<RoleEntity>({ is_status: false })
 const dialogTitle = ref<string>('')
 const dialogOperate = ref<string>('')
-const openDialog = (operate: string, row?: RoleEntity) => {
-  if (operate === 'insert') {
-    dialogTitle.value = '新增角色'
+
+enum operates {
+  insert = 'insert',
+  update = 'update'
+}
+
+const openDialog = (operate: operates, row?: RoleEntity) => {
+  if (operate === operates.insert) {
+    dialogTitle.value = '新增'
+    roleCheckedMenuKeys.value = []
   } else {
-    dialogTitle.value = '编辑角色'
+    dialogTitle.value = '编辑'
+    getMyMenuTree(row?.role_id as number)
     if (row) {
       dialogForm.value = cloneDeep(row)
     } else {
@@ -74,49 +129,41 @@ const openDialog = (operate: string, row?: RoleEntity) => {
   isDialog.value = true
   dialogOperate.value = operate
 }
-const handlerOperate = async (formEl: FormInstance | undefined) => {
+const handlerOperate = async (formEl?: FormInstance) => {
   if (!formEl) return
   await formEl.validate((valid) => {
     if (valid) {
-      if (dialogOperate.value === 'insert') {
-        addRole(dialogForm.value).then(({ data }) => {
+      if (dialogOperate.value === operates.insert) {
+        addRole({
+          role: dialogForm.value,
+          menu_ids: treeRef.value?.getCheckedKeys() as number[]
+        }).then(({ data }) => {
           switch (data.code) {
             case 200:
-              ElNotification.success({
-                message: '添加成功',
-                duration: DURATION_TIME
-              })
+              notifySuccess('添加成功')
               isDialog.value = false
               getTableList()
               break
             case 201:
-              ElNotification.error({
-                message: data.message,
-                duration: DURATION_TIME
-              })
+              notifyWarning(data.message)
               break
             default:
-              ElNotification.error({
-                message: '添加失败，请重试!',
-                duration: DURATION_TIME
-              })
+              notifyError('添加失败，请重试!')
           }
         })
       } else {
-        updateRole(dialogForm.value).then(({ data }) => {
+        const temp: MenuInfoDto = {
+          role: dialogForm.value,
+          menu_ids: treeRef.value?.getCheckedKeys() as number[]
+        }
+        updateRoleInfo(temp).then(({ data }) => {
           if (data.code === 200) {
-            ElNotification.success({
-              message: '更新成功',
-              duration: DURATION_TIME
-            })
+            notifySuccess('更新成功')
             isDialog.value = false
             getTableList()
             return
           }
-          ElNotification.error({
-            message: '更新失败，请重试!',
-            duration: DURATION_TIME
-          })
+          notifyError('更新失败，请重试!')
         })
       }
     }
@@ -125,14 +172,11 @@ const handlerOperate = async (formEl: FormInstance | undefined) => {
 const handlerDelete = (id: number) => {
   deleteRole(id).then(async ({ data }) => {
     if (data.code === 200) {
-      ElNotification.success({ message: '删除成功', duration: DURATION_TIME })
+      notifySuccess('删除成功')
       getTableList()
       return
     }
-    ElNotification.error({
-      message: '删除失败，请重试!',
-      duration: DURATION_TIME
-    })
+    notifyError('删除失败')
   })
 }
 watch(
@@ -146,20 +190,31 @@ watch(
   { deep: true }
 )
 const disabled = reactive({
-  update: true,
   delete: true
 })
+const handleBatchDelete = () => {
+  ElMessageBox.confirm('确认删除选中行数据吗?', '提示', {
+    confirmButtonText: '确认',
+    cancelButtonText: '返回',
+    type: 'warning'
+  }).then(() => {
+    deleteBatchRole(
+      multipleSelection.value.map((item) => item.role_id) as number[]
+    ).then(({ data }) => {
+      if (data.code === 200) {
+        notifySuccess('删除成功')
+        getTableList()
+        return
+      }
+      notifyError('删除失败')
+    })
+  })
+}
 watch(
   () => multipleSelection.value,
-  () => {
-    disabled.update = multipleSelection.value.length !== 1
-    disabled.delete = multipleSelection.value.length < 1
-  },
+  () => (disabled.delete = multipleSelection.value.length < 1),
   { immediate: true, deep: true }
 )
-
-const isPerDialog = ref<boolean>(false)
-const handlerPermission = () => {}
 </script>
 
 <template>
@@ -184,22 +239,15 @@ const handlerPermission = () => {}
       </el-col>
     </el-row>
     <el-row :gutter="12">
-      <el-button type="success" @click="openDialog('insert')">新增</el-button>
+      <el-button type="success" @click="openDialog(operates.insert)">
+        新增
+      </el-button>
       <el-button
         type="danger"
         :disabled="disabled.delete"
-        @click="
-          ElNotification.warning({ message: '待开发...', duration: 1500 })
-        "
+        @click="handleBatchDelete"
       >
         删除
-      </el-button>
-      <el-button
-        type="warning"
-        :disabled="disabled.update"
-        @click="openDialog('update')"
-      >
-        修改
       </el-button>
     </el-row>
     <el-table
@@ -211,7 +259,6 @@ const handlerPermission = () => {}
     >
       <el-table-column type="selection" width="30" align="center" />
       <el-table-column prop="role_name" label="名称" />
-      <el-table-column prop="description" label="备注" />
       <el-table-column label="状态">
         <template #default="{ row }">
           <el-tag
@@ -227,17 +274,24 @@ const handlerPermission = () => {}
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column
+        prop="description"
+        label="备注"
+        :show-overflow-tooltip="true"
+      />
       <el-table-column label="创建时间" align="center">
         <template #default="{ row }">
-          {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
+          {{ moment(row.create_time).format(DATE_TIME_FORMAT) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="300">
+      <el-table-column label="更新时间" align="center">
         <template #default="{ row }">
-          <el-button type="success" @click="isPerDialog = true">
-            授权
-          </el-button>
-          <el-button type="primary" @click="openDialog('update', row)">
+          {{ moment(row.update_time).format(DATE_TIME_FORMAT) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="180">
+        <template #default="{ row }">
+          <el-button type="primary" @click="openDialog(operates.update, row)">
             编辑
           </el-button>
           <el-popconfirm
@@ -300,29 +354,26 @@ const handlerPermission = () => {}
           placeholder="默认：空"
         />
       </el-form-item>
+      <el-form-item label="权限">
+        <el-tree
+          ref="treeRef"
+          :data="menuTree"
+          node-key="id"
+          :default-checked-keys="roleCheckedMenuKeys"
+          highlight-current
+          show-checkbox
+          :props="{
+            label: 'label',
+            children: 'children'
+          }"
+        ></el-tree>
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button type="danger" text @click="isDialog = false">返回</el-button>
       <el-button type="primary" @click="handlerOperate(dialogFormRef)">
         确认
       </el-button>
-    </template>
-  </el-dialog>
-
-  <!--permission-->
-  <el-dialog
-    v-model="isPerDialog"
-    title="角色授权"
-    width="30%"
-    destroy-on-close
-    :show-close="false"
-    :close-on-click-modal="false"
-  >
-    <!--TODO 这里是权限内容-->
-    <span>这里是权限内容</span>
-    <template #footer>
-      <el-button @click="isPerDialog = false">返回</el-button>
-      <el-button type="primary" @click="handlerPermission"> 确认</el-button>
     </template>
   </el-dialog>
 </template>
