@@ -8,8 +8,7 @@
           fit="fill"
           :src="userStore.getAvatar"
         />
-        <!--        <span class="center-username">{{ userStore.getUsername }}</span>-->
-        <span class="center-username">admin</span>
+        <span class="center-username">{{ userStore.getUsername }}</span>
       </span>
     </span>
     <template #dropdown>
@@ -45,11 +44,10 @@ const handlerLogout = async () => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    // TODO 处理退出
     logout().then(({ data }) => {
       switch (data.code) {
         case 200:
-          cookie.remove(settings.AUTHORIZATION_KEY)
+          userStore.systemLogout()
           router.replace('/login')
           ElMessage.success('注销成功')
           break

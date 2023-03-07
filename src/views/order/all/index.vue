@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import moment from 'moment'
-import Pagination from '../../components/Pagination/index.vue'
+import Pagination from '../../../components/Pagination/index.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { ElMessageBox, ElNotification, ElTable } from 'element-plus'
 import { clone, cloneDeep } from 'lodash'
-import { delayRequest } from '../../utils/common'
-import { OrderEntity } from '../../types/entity'
-import { deleteOrder, getOrderPageList } from '../../api/order'
-import { QueryOrder } from '../../types/query'
-import { updateRoomState } from '../../api/room'
-import { DURATION_TIME } from '../../settings'
+import { delayRequest } from '../../../utils/common'
+import { OrderEntity } from '../../../types/entity'
+import { deleteOrder, getOrderPageList } from '../../../api/order'
+import { QueryOrder } from '../../../types/query'
+import { updateRoomState } from '../../../api/room'
+import { DURATION_TIME } from '../../../settings'
 
 const tableData = ref<OrderEntity[]>([])
 const tableLoading = ref<boolean>(false)

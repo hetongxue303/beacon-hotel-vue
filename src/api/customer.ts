@@ -1,6 +1,6 @@
 import axios from '../utils/request'
 import { QueryCustomer } from '../types/query'
-import { CustomerEntity, CustomerLoginDto } from '../types/entity'
+import { CustomerEntity, CustomerLoginDto, OrderEntity } from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
@@ -16,6 +16,13 @@ const getCustomerByAccount = (customer_account: string) => {
     method: 'GET',
     url: `${baseApi}/customer/customer_account`,
     params: { customer_account }
+  })
+}
+const getCustomerByIdCard = (id_card: string) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/customer/id_card`,
+    params: { id_card }
   })
 }
 const insertCustomer = (data: CustomerEntity) => {
@@ -58,15 +65,25 @@ const updateCustomerStatus = (data: CustomerEntity) => {
     data
   })
 }
+
 interface update_pw {
   account?: string
   old_pw?: string
   new_pw?: string
 }
+
 const updateCustomerPassword = (data: update_pw) => {
   return axios({
     method: 'PUT',
     url: `${baseApi}/customer/update/password`,
+    data
+  })
+}
+
+const stayRoom = (data: OrderEntity) => {
+  return axios({
+    method: 'POST',
+    url: `${baseApi}/customer/stay`,
     data
   })
 }
@@ -80,5 +97,7 @@ export {
   customerLogin,
   customerLogout,
   updateCustomerPassword,
-  getCustomerByAccount
+  getCustomerByAccount,
+  getCustomerByIdCard,
+  stayRoom
 }

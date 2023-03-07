@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { TabsType } from '../../types/pinia'
 
-export const useSettingStore = defineStore('tabs', {
+export const useTabStore = defineStore('tabs', {
   state: (): TabsType => {
     return {
       tabs: [{ title: '首页', path: '/dashboard' }],

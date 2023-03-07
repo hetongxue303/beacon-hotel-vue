@@ -4,7 +4,12 @@ import { QueryIndex } from '../../types/query'
 import { delayRequest, randomNumber } from '../../utils/common'
 import { getIndexPageList } from '../../api'
 import { clone, cloneDeep } from 'lodash'
-import { IndexDto, RoomEntity } from '../../types/entity'
+import {
+  CustomerEntity,
+  IndexDto,
+  OrderEntity,
+  RoomEntity
+} from '../../types/entity'
 import image1 from '../../assets/images/box1.png'
 import image2 from '../../assets/images/box2.png'
 import image3 from '../../assets/images/box3.png'
@@ -13,8 +18,9 @@ import image5 from '../../assets/images/up1.png'
 import image6 from '../../assets/images/up2.png'
 import image7 from '../../assets/images/up3.png'
 import image8 from '../../assets/images/up4.png'
-import { ElNotification } from 'element-plus'
+import { ElNotification, FormInstance } from 'element-plus'
 import { DURATION_TIME } from '../../settings'
+import { getCustomerByIdCard } from '../../api/customer'
 
 const images = reactive([
   image1,
@@ -91,9 +97,113 @@ watch(
   },
   { deep: true }
 )
+
+const dateValue = ref<Date[]>([])
+const dateNum = ref<number>(0)
+const dateFlag = ref<boolean>(false)
+const stayDialog = ref<boolean>(false)
+
+const customer = ref<CustomerEntity>({})
+const stayForm = ref<OrderEntity>({})
+const stayFormRef = ref<FormInstance>()
+const handleStay = async (formEl?: FormInstance) => {
+  stayForm.value.room = detailForm.value
+  console.log(detailForm.value)
+  console.log(stayForm.value)
+}
+const handleChangeIdCard = (id_card: string) => {
+  if (id_card.length === 18) {
+    getCustomerByIdCard(id_card).then(({ data }) => {
+      if (data.code === 200 && data.data !== null) {
+        customer.value = cloneDeep(data.data)
+      } else {
+        customer.value.customer_name = '用户不存在'
+      }
+    })
+  }
+  customer.value.customer_name = undefined
+}
+watch(
+  () => customer.value,
+  (value) => (stayForm.value.customer = value),
+  { deep: true }
+)
 </script>
 
 <template>
+  <el-dialog
+    v-model="stayDialog"
+    title="办理入住"
+    width="50%"
+    destroy-on-close
+    :show-close="false"
+    :close-on-click-modal="false"
+  >
+    <el-form ref="stayFormRef" :model="stayForm" label-width="80">
+      <el-form-item label="身份证号">
+        <el-input
+          v-model="customer.id_card"
+          placeholder="身份证号"
+          @input="handleChangeIdCard(customer.id_card)"
+        />
+      </el-form-item>
+      <el-form-item label="您的姓名">
+        <span :style="{ color: '#7a8b9a', fontSize: '13px' }">
+          {{ stayForm.customer?.customer_name }}
+        </span>
+      </el-form-item>
+      <el-form-item label="房间名称">
+        <span :style="{ color: '#7a8b9a', fontSize: '13px' }">
+          {{ stayForm.room?.room_name }}
+        </span>
+      </el-form-item>
+      <el-form-item label="房间价格">
+        <span :style="{ color: 'red', fontSize: '13px' }">
+          ￥{{ stayForm.room?.room_price }}
+        </span>
+      </el-form-item>
+      <el-form-item
+        label="同行人数"
+        prop="count_num"
+        :rules="{ required: true, message: '人数不能为空', trigger: 'blur' }"
+      >
+        <el-input-number
+          v-model="stayForm.count_num"
+          :style="{ width: '30%' }"
+        />
+      </el-form-item>
+      <el-form-item label="时间范围">
+        <el-date-picker
+          v-model="dateValue"
+          type="datetimerange"
+          range-separator="到"
+          start-placeholder="入住时间"
+          end-placeholder="离开时间"
+          :default-time="[
+            new Date(2023, 1, 1, 9, 0, 0),
+            new Date(2023, 1, 2, 9, 0, 0)
+          ]"
+        />
+      </el-form-item>
+      <el-form-item label="入住天数"> {{ dateNum }}天</el-form-item>
+      <el-form-item label="备注信息">
+        <el-input
+          v-model="stayForm.description"
+          type="textarea"
+          resize="none"
+          :rows="3"
+          placeholder="默认：无"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button type="danger" @click="stayDialog = false"> 取消</el-button>
+      <el-button type="primary" @click="handleStay(stayFormRef)">
+        确定
+      </el-button>
+    </template>
+  </el-dialog>
+
   <el-dialog
     v-model="detailDialog"
     width="30%"
@@ -158,7 +268,7 @@ watch(
       <el-button text type="danger" @click="detailDialog = false">
         返回
       </el-button>
-      <el-button type="success">入住</el-button>
+      <el-button type="success" @click="stayDialog = true">办理入住</el-button>
     </template>
   </el-dialog>
   <el-row v-loading="indexLoading" class="index-box">

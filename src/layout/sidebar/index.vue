@@ -23,19 +23,14 @@ import { useRoute } from 'vue-router'
 import MenuItem from './components/MenuItem.vue'
 import Logo from './components/logo.vue'
 import { usePermissionStore } from '../../store/modules/permission'
-import { menus } from '../data/menus'
 
 const route = useRoute()
-// const permissionStore = usePermissionStore()
-// const menus = computed(() => {
-//   return permissionStore.getMenu
-// })
+const permissionStore = usePermissionStore()
+const menus = computed(() => permissionStore.getMenuItem)
 
 withDefaults(defineProps<{ isCollapse: boolean }>(), { isCollapse: false })
 
-const activeValue = computed((): string => {
-  return route.path
-})
+const activeValue = computed((): string => route.path)
 </script>
 
 <style scoped lang="scss">

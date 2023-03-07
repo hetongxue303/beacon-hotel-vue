@@ -256,7 +256,7 @@ const handleDelete = (menu_id: number) => {
             菜单选项
           </el-tag>
           <el-tag
-            v-else-if="row.menu_type === '2' && row.is_sub"
+            v-else-if="row.menu_type === '1' && row.is_sub"
             type="success"
             disable-transitions
           >

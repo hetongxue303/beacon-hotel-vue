@@ -39,6 +39,7 @@ interface MenuEntity extends Base {
   sort?: number
   icon?: string
   permission?: string
+  sub_count?: number
   is_show?: boolean
   is_sub?: boolean
   is_status?: boolean

@@ -7,20 +7,22 @@
     >
       <template #title>
         <svg-icon :name="item.icon" />
-        <span>{{ item.name }}</span>
+        <span>{{ item.title }}</span>
       </template>
       <MenuItem :data="item.children" />
     </el-sub-menu>
     <!--无子组件时-->
     <el-menu-item v-else :index="item.path">
       <svg-icon :name="item.icon" />
-      <template #title>{{ item.name }}</template>
+      <template #title>{{ item.title }}</template>
     </el-menu-item>
   </template>
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{ data: Array<any> }>(), {})
+import { Menu } from '../../../types/element'
+
+withDefaults(defineProps<{ data: Menu[] }>(), {})
 </script>
 
 <style scoped lang="scss">

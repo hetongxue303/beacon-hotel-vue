@@ -22,6 +22,7 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
+    name: 'main',
     component: Layout,
     redirect: '/dashboard',
     meta: { cache: false },
@@ -54,103 +55,112 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@views/error/404.vue')
       }
     ]
-  },
-  /* 动态路由 */
-  {
-    path: '/',
-    component: Layout,
-    meta: { cache: false },
-    children: [
-      {
-        name: 'storey',
-        path: '/storey',
-        meta: {
-          title: '楼层管理',
-          cache: false
-        },
-        component: () => import('@views/storey/index.vue')
-      },
-      {
-        name: 'type',
-        path: '/type',
-        meta: {
-          title: '客房类型',
-          cache: false
-        },
-        component: () => import('@views/type/index.vue')
-      },
-      {
-        name: 'room',
-        path: '/room',
-        meta: {
-          title: '客房管理',
-          cache: false
-        },
-        component: () => import('@views/room/index.vue')
-      },
-      {
-        name: 'reservation',
-        path: '/reservation',
-        meta: {
-          title: '预约管理',
-          cache: false
-        },
-        component: () => import('@views/reservation/index.vue')
-      },
-      {
-        name: 'customer',
-        path: '/customer',
-        meta: {
-          title: '客户管理',
-          cache: false
-        },
-        component: () => import('@views/customer/index.vue')
-      },
-      {
-        name: 'order',
-        path: '/order',
-        meta: {
-          title: '订单管理',
-          cache: false
-        },
-        component: () => import('@views/order/index.vue')
-      },
-      {
-        name: 'user',
-        path: '/system/user',
-        meta: {
-          title: '用户管理',
-          cache: false
-        },
-        component: () => import('@views/system/user/index.vue')
-      },
-      {
-        name: 'role',
-        path: '/system/role',
-        meta: {
-          title: '角色管理',
-          cache: false
-        },
-        component: () => import('@views/system/role/index.vue')
-      },
-      {
-        name: 'menu',
-        path: '/system/menu',
-        meta: {
-          title: '菜单管理',
-          cache: false
-        },
-        component: () => import('@views/system/menu/index.vue')
-      },
-      {
-        name: 'about',
-        path: '/about',
-        meta: {
-          title: '关于系统',
-          cache: false
-        },
-        component: () => import('@views/about/index.vue')
-      }
-    ]
   }
+  /* 动态路由 */
+  // {
+  //   path: '/',
+  //   component: Layout,
+  //   meta: { cache: false },
+  //   children: [
+  //     {
+  //       name: 'type',
+  //       path: '/type',
+  //       meta: {
+  //         title: '客房类型',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/type/index.vue')
+  //     },
+  //     {
+  //       name: 'room',
+  //       path: '/room',
+  //       meta: {
+  //         title: '客房管理',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/room/index.vue')
+  //     },
+  //     {
+  //       name: 'reservation',
+  //       path: '/reservation',
+  //       meta: {
+  //         title: '预约管理',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/reservation/index.vue')
+  //     },
+  //     {
+  //       name: 'customer',
+  //       path: '/customer',
+  //       meta: {
+  //         title: '客户管理',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/customer/index.vue')
+  //     },
+  //     {
+  //       name: 'reservation',
+  //       path: '/order/reservation',
+  //       meta: {
+  //         title: '预约订单',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/order/reservation/index.vue')
+  //     },
+  //     {
+  //       name: 'stay',
+  //       path: '/order/stay',
+  //       meta: {
+  //         title: '入住订单',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/order/stay/index.vue')
+  //     },
+  //     {
+  //       name: 'all',
+  //       path: '/order/all',
+  //       meta: {
+  //         title: '所有订单',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/order/all/index.vue')
+  //     },
+  //     {
+  //       name: 'user',
+  //       path: '/system/user',
+  //       meta: {
+  //         title: '用户管理',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/system/user/index.vue')
+  //     },
+  //     {
+  //       name: 'role',
+  //       path: '/system/role',
+  //       meta: {
+  //         title: '角色管理',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/system/role/index.vue')
+  //     },
+  //     {
+  //       name: 'menu',
+  //       path: '/system/menu',
+  //       meta: {
+  //         title: '菜单管理',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/system/menu/index.vue')
+  //     },
+  //     {
+  //       name: 'about',
+  //       path: '/about',
+  //       meta: {
+  //         title: '关于系统',
+  //         cache: false
+  //       },
+  //       component: () => import('@views/about/index.vue')
+  //     }
+  //   ]
+  // }
 ]

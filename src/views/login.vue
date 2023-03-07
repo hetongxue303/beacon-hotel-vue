@@ -5,8 +5,12 @@ import { decrypt, encrypt } from '../utils/jsencrypt'
 import { useCookies } from '@vueuse/integrations/useCookies'
 import { encryptPasswordToMD5 } from '../hook/encrypt'
 import { login } from '../api/auth'
-import { setToken, setTokenTime } from '../utils/auth'
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '../store/modules/user'
+import { DURATION_TIME } from '../settings'
+import { getMenuList } from '../api/menu'
+import { MenuEntity } from '../types/entity'
+import { cloneDeep } from 'lodash'
 
 interface Login {
   username: string
@@ -17,8 +21,12 @@ interface Login {
 const cookie = useCookies()
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
+const params: { loading: boolean; redirect: string } = reactive({
+  loading: false,
+  redirect: ''
+})
 const ruleFormRef = ref<FormInstance>()
-const paramList = reactive({ loading: false, redirect: '' })
 const loginForm: Login = reactive({
   username: '',
   password: '',
@@ -28,7 +36,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
-      paramList.loading = true
+      params.loading = true
       if (loginForm.remember_me) {
         const expires: Date = new Date(new Date().getTime() + 60 * 60 * 1000)
         cookie.remove('username')
@@ -49,15 +57,23 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
       })
         .then(async ({ data, status }) => {
           if (data.code === 200 && status === 200) {
-            setToken(`bearer ${data.access_token}`)
-            setTokenTime(new Date().getTime() + data.expire_time)
-            await router.push(paramList.redirect || '/')
-            ElMessage.success('登陆成功')
+            userStore.setUserInfo(data)
+            await router.push(params.redirect || '/')
+            ElMessage.success({ message: '登陆成功', duration: DURATION_TIME })
           } else {
-            ElMessage.warning(data.message || '登陆失败，请重试！')
+            ElMessage.warning({
+              message: data.message || '登陆失败，请重试！',
+              duration: DURATION_TIME
+            })
           }
         })
-        .finally(() => (paramList.loading = false))
+        .catch(({ response }) =>
+          ElMessage.error({
+            message: response.data.message,
+            duration: DURATION_TIME
+          })
+        )
+        .finally(() => (params.loading = false))
     }
   })
 }
@@ -70,12 +86,10 @@ const getCookie = async () => {
 }
 watch(
   () => route,
-  () => (paramList.redirect = route.query && (route.query.redirect as string)),
+  () => (params.redirect = route.query && (route.query.redirect as string)),
   { deep: true, immediate: true }
 )
-onMounted(() => {
-  getCookie()
-})
+onMounted(() => getCookie())
 </script>
 
 <template>
@@ -99,7 +113,6 @@ onMounted(() => {
           >
             <el-input
               v-model="loginForm.username"
-              type="text"
               placeholder="账号"
               prefix-icon="user"
             />
@@ -114,23 +127,22 @@ onMounted(() => {
           >
             <el-input
               v-model="loginForm.password"
-              type="text"
               placeholder="密码"
               prefix-icon="lock"
               show-password
             />
           </el-form-item>
           <el-form-item>
-            <el-checkbox v-model="loginForm.remember_me" label="记住我" />
+            <el-checkbox v-model="loginForm.remember_me" label="记住密码" />
           </el-form-item>
           <el-form-item>
             <el-button
-              v-loading="paramList.loading"
+              v-loading="params.loading"
               type="primary"
               @click="handleLogin(ruleFormRef)"
               @keyup.enter="handleLogin(ruleFormRef)"
             >
-              <span v-if="!paramList.loading">登 录</span>
+              <span v-if="!params.loading">登 录</span>
               <span v-else>登 陆 中 ...</span>
             </el-button>
           </el-form-item>

@@ -136,7 +136,9 @@ const handlerOperate = async (formEl?: FormInstance) => {
       if (dialogOperate.value === operates.insert) {
         addRole({
           role: dialogForm.value,
-          menu_ids: treeRef.value?.getCheckedKeys() as number[]
+          menu_ids: (treeRef.value?.getCheckedKeys() as number[]).concat(
+            treeRef.value?.getHalfCheckedKeys() as number[]
+          )
         }).then(({ data }) => {
           switch (data.code) {
             case 200:
@@ -154,7 +156,9 @@ const handlerOperate = async (formEl?: FormInstance) => {
       } else {
         const temp: MenuInfoDto = {
           role: dialogForm.value,
-          menu_ids: treeRef.value?.getCheckedKeys() as number[]
+          menu_ids: (treeRef.value?.getCheckedKeys() as number[]).concat(
+            treeRef.value?.getHalfCheckedKeys() as number[]
+          )
         }
         updateRoleInfo(temp).then(({ data }) => {
           if (data.code === 200) {
